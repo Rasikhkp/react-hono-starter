@@ -1,16 +1,21 @@
 import { Hono } from "hono";
-import { authRoutes } from "./modules/auth/auth.routes";
+import { authRoutes } from "./modules/auth/routes";
 import { AppError, ERROR_CODES } from "./utils/error";
-import { authMiddleware } from "./middlewares/auth";
-import * as authController from "./modules/auth/auth.controller"
+import { authMiddleware } from "./middlewares/authMiddleware";
 import { cors } from 'hono/cors'
 import { User } from "./db/schema";
+import { logoutController } from "./modules/auth/controllers/logoutController";
+import { Scalar } from "@scalar/hono-api-reference";
+import openapi from "../openapi.json";
 
 type Variables = {
   user: User
 };
 
 const app = new Hono<{ Variables: Variables }>();
+
+app.get('/scalar', Scalar({ url: '/doc' }))
+app.get('/doc', (c) => c.json(openapi))
 
 app.use(
   '*',
@@ -20,15 +25,16 @@ app.use(
   })
 )
 
-/**
- * Public API (no auth)
- */
+//-------------------------------
+// Public API
+//-------------------------------
 const publicApi = new Hono<{ Variables: Variables }>();
+
 publicApi.route("/auth", authRoutes);
 
-/**
- * Protected API (with auth)
- */
+//-------------------------------
+// Protected API
+//-------------------------------
 const protectedApi = new Hono<{ Variables: Variables }>();
 
 protectedApi.use("*", authMiddleware);
@@ -38,22 +44,22 @@ protectedApi.get("/me", (c) => {
   return c.json({ data: user });
 });
 
-protectedApi.post('/auth/logout', authController.logout)
+protectedApi.post('/auth/logout', logoutController)
 
-/**
- * Root routes
- */
+//-------------------------------
+// Root routes
+//-------------------------------
 app.get("/", (c) => c.text("OK"));
 
-/**
- * Mount APIs
- */
+//-------------------------------
+// Mount APIs
+//-------------------------------
 app.route("/api", publicApi);
 app.route("/api", protectedApi);
 
-/**
- * Global Error Handler
- */
+//-------------------------------
+// Global Error Handler
+//-------------------------------
 app.onError((err, c) => {
   if (err instanceof AppError) {
     return c.json(

@@ -2,6 +2,7 @@
   "name": "server",
   "scripts": {
     "dev": "bun run --hot src/index.ts",
+    "build": "bun build src/index.ts --outdir dist --target bun",
     "migrate:latest": "bun run ./src/db/migrateToLatest.ts",
     "migrate:up": "bun run ./src/db/migrateUp.ts",
     "migrate:down": "bun run ./src/db/migrateDown.ts",
@@ -9,6 +10,7 @@
     "db:seed": "bun run ./src/db/seeders/index.ts"
   },
   "dependencies": {
+    "@scalar/hono-api-reference": "^0.10.14",
     "argon2": "^0.44.0",
     "arkenv": "^0.11.0",
     "arktype": "^2.2.0",
@@ -22,7 +24,7 @@
   },
   "devDependencies": {
     "@types/bun": "latest",
-    "@types/node": "^25.6.0",
+    "@types/node": "^25.6.2",
     "kysely-codegen": "^0.20.0",
     "typescript": "^6.0.3"
   }
