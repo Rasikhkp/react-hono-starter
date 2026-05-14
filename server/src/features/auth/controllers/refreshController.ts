@@ -1,8 +1,8 @@
 import { Context } from "hono";
-import { AppError, ERROR_TYPES } from "@/utils/error";
+import { AppError, ERROR_TYPES } from "@/lib/error";
 import { setCookie } from "hono/cookie";
-import { cookieOptions } from "@/utils/cookie";
-import { refreshService } from "../services/refreshService";
+import { cookieOptions } from "@/lib/cookie";
+import { refresh } from "../services/refresh";
 
 export const refreshController = async (c: Context) => {
   const { refreshToken } = await c.req.json();
@@ -11,7 +11,7 @@ export const refreshController = async (c: Context) => {
     throw new AppError(ERROR_TYPES.VALIDATION_ERROR, "Refresh token is required", 400)
   }
 
-  const tokens = await refreshService(refreshToken);
+  const tokens = await refresh(refreshToken);
 
   setCookie(c, 'access_token', tokens.accessToken, cookieOptions)
   setCookie(c, 'refresh_token', tokens.refreshToken, cookieOptions)

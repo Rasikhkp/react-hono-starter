@@ -1,13 +1,14 @@
 import { Hono } from "hono";
-import { authRoutes } from "./modules/auth/routes";
-import { AppError, ERROR_TYPES } from "./utils/error";
+import { authRoutes } from "./features/auth/routes";
+import { AppError, ERROR_TYPES } from "./lib/error";
 import { authMiddleware } from "./middlewares/authMiddleware";
 import { cors } from 'hono/cors'
 import { User } from "./db/schema";
-import { logoutController } from "./modules/auth/controllers/logoutController";
+import { logoutController } from "./features/auth/controllers/logoutController";
 import { Scalar } from "@scalar/hono-api-reference";
 import openapi from "../openapi.json";
 import { logger } from "hono/logger";
+import { userRoutes } from "./features/user/routes";
 
 type Variables = {
   user: User
@@ -48,6 +49,7 @@ protectedApi.get("/me", (c) => {
 });
 
 protectedApi.post('/auth/logout', logoutController)
+protectedApi.route('/', userRoutes)
 
 //-------------------------------
 // Root routes

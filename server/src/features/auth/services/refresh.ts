@@ -1,20 +1,20 @@
 import { v7 } from "uuid";
 import { db } from "@/db/database";
-import { AppError, ERROR_TYPES } from "@/utils/error";
-import { hashToken } from "@/utils/hash";
-import { signAccessToken } from "@/utils/jwt";
+import { AppError, ERROR_TYPES } from "@/lib/error";
+import { hashToken } from "@/lib/hash";
+import { signAccessToken } from "@/lib/jwt";
 import { add } from "date-fns";
 
-export const refreshService = async (refreshToken: string) => {
+export const refresh = async (refreshToken: string) => {
   const tokenHash = await hashToken(refreshToken);
 
   const token = await db
     .selectFrom("refresh_tokens")
     .selectAll()
-    .where("token_hash", "=", tokenHash)
+    .where("tokenHash", "=", tokenHash)
     .executeTakeFirst();
 
-  if (!token || token.is_revoked) {
+  if (!token || token.isRevoked) {
     throw new AppError(
       ERROR_TYPES.UNAUTHORIZED,
       "Invalid refresh token",
@@ -22,7 +22,7 @@ export const refreshService = async (refreshToken: string) => {
     );
   }
 
-  if (new Date(token.expires_at) < new Date()) {
+  if (new Date(token.expiresAt) < new Date()) {
     throw new AppError(
       ERROR_TYPES.UNAUTHORIZED,
       "Refresh token expired",
@@ -32,12 +32,12 @@ export const refreshService = async (refreshToken: string) => {
 
   await db
     .updateTable("refresh_tokens")
-    .set({ is_revoked: 1 })
+    .set({ isRevoked: 1 })
     .where("id", "=", token.id)
     .execute();
 
   const newAccessToken = await signAccessToken({
-    sub: token.user_id,
+    sub: token.userId,
   });
 
   const newRefreshToken = v7();
@@ -47,9 +47,9 @@ export const refreshService = async (refreshToken: string) => {
     .insertInto("refresh_tokens")
     .values({
       id: v7(),
-      user_id: token.user_id,
-      token_hash: refreshTokenHash,
-      expires_at: add(new Date(), { days: 7 }),
+      userId: token.userId,
+      tokenHash: refreshTokenHash,
+      expiresAt: add(new Date(), { days: 7 }),
     })
     .execute();
 

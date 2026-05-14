@@ -1,6 +1,6 @@
 import { Context, Next } from "hono";
-import { verifyAccessToken } from "../utils/jwt"; // you should have this
-import { AppError, ERROR_TYPES } from "../utils/error";
+import { verifyAccessToken } from "../lib/jwt"; // you should have this
+import { AppError, ERROR_TYPES } from "../lib/error";
 import { getCookie } from "hono/cookie";
 import { db } from "../db/database";
 
@@ -18,7 +18,7 @@ export const authMiddleware = async (c: Context, next: Next) => {
   try {
     const payload = await verifyAccessToken(cookies.access_token);
 
-    const user = await db.selectFrom('users').select(['id', 'name', 'email', 'is_active', 'is_email_verified']).where('id', '=', payload.payload.sub || '0').executeTakeFirst()
+    const user = await db.selectFrom('users').select(['id', 'name', 'email', 'isActive', 'isEmailVerified']).where('id', '=', payload.payload.sub || '0').executeTakeFirst()
 
     c.set("user", user);
 

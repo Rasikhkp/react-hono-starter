@@ -1,5 +1,5 @@
 import { useNavigate } from "@tanstack/react-router";
-import type { User } from "@/features/users/types";
+import type { User } from "@/features/user/types";
 import { authAtom } from "@/shared/atoms/authAtom";
 import { Button } from "@/shared/components/ui/button";
 import { FieldGroup } from "@/shared/components/ui/field";

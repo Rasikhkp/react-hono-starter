@@ -1,5 +1,5 @@
 import { createFileRoute, Outlet, redirect } from "@tanstack/react-router";
-import type { User } from "@/features/users/types";
+import type { User } from "@/features/user/types";
 import { authAtom } from "@/shared/atoms/authAtom";
 import { AppSidebar } from "@/shared/components/AppSidebar";
 import { NavBar } from "@/shared/components/NavBar";

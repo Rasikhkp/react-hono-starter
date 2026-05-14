@@ -10,24 +10,24 @@ export type Generated<T> = T extends ColumnType<infer S, infer I, infer U>
   : ColumnType<T, T | undefined, T>;
 
 export interface RefreshToken {
-  created_at: Generated<Date | null>;
-  expires_at: Date;
+  createdAt: Generated<Date | null>;
+  expiresAt: Date;
   id: string;
-  is_revoked: Generated<number | null>;
-  token_hash: string;
-  updated_at: Generated<Date | null>;
-  user_id: string;
+  isRevoked: Generated<number | null>;
+  tokenHash: string;
+  updatedAt: Generated<Date | null>;
+  userId: string;
 }
 
 export interface User {
-  created_at: Generated<Date | null>;
+  createdAt: Generated<Date | null>;
   email: string;
   id: string;
-  is_active: Generated<number | null>;
-  is_email_verified: Generated<number | null>;
+  isActive: Generated<number | null>;
+  isEmailVerified: Generated<number | null>;
   name: string;
   password: string;
-  updated_at: Generated<Date | null>;
+  updatedAt: Generated<Date | null>;
 }
 
 export interface DB {

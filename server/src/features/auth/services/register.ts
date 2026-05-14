@@ -1,19 +1,19 @@
 import { v7 } from "uuid";
 import { db } from "@/db/database";
-import { hashPassword } from "@/utils/password";
-import { AppError, ERROR_TYPES } from "@/utils/error";
-import { signAccessToken } from "@/utils/jwt";
-import { hashToken } from "@/utils/hash";
+import { hashPassword } from "@/lib/password";
+import { AppError, ERROR_TYPES } from "@/lib/error";
+import { signAccessToken } from "@/lib/jwt";
+import { hashToken } from "@/lib/hash";
 import { add } from "date-fns";
 
-export const registerService = async (input: {
+export const register = async (input: {
   email: string;
   password: string;
   name: string;
 }) => {
   const existing = await db
     .selectFrom("users")
-    .select(['id', 'name', 'password', 'email', 'is_email_verified', 'is_active'])
+    .select(['id', 'name', 'password', 'email', 'isEmailVerified', 'isActive'])
     .where("email", "=", input.email)
     .executeTakeFirst();
 
@@ -41,7 +41,7 @@ export const registerService = async (input: {
 
   const insertedUser = await db
     .selectFrom('users')
-    .select(['id', 'name', 'email', 'is_active', 'is_email_verified'])
+    .select(['id', 'name', 'email', 'isActive', 'isEmailVerified'])
     .where('id', '=', newUserId)
     .executeTakeFirst()
 
@@ -64,9 +64,9 @@ export const registerService = async (input: {
     .insertInto("refresh_tokens")
     .values({
       id: v7(),
-      user_id: insertedUser.id,
-      token_hash: tokenHash,
-      expires_at: add(new Date(), { days: 7 }),
+      userId: insertedUser.id,
+      tokenHash: tokenHash,
+      expiresAt: add(new Date(), { days: 7 }),
     })
     .execute();
 

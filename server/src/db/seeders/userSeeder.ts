@@ -1,6 +1,6 @@
 import { v7 } from "uuid";
 import { db } from "../database";
-import { hashPassword } from "../../utils/password";
+import { hashPassword } from "../../lib/password";
 
 export const userSeeder = async () => {
   console.log("Seeding users");
@@ -27,8 +27,8 @@ export const userSeeder = async () => {
           email: "admin@example.com",
           name: "Admin",
           password,
-          is_active: 1,
-          is_email_verified: 1,
+          isActive: 1,
+          isEmailVerified: 1,
         },
       ])
       .execute();

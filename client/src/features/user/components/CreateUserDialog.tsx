@@ -1,0 +1,46 @@
+import { Button } from "@/shared/components/ui/button";
+import {
+  Dialog,
+  DialogClose,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogPanel,
+  DialogPopup,
+  DialogTitle,
+  DialogTrigger,
+} from "@/shared/components/ui/dialog";
+import { Field, FieldLabel } from "@/shared/components/ui/field";
+import { Input } from "@/shared/components/ui/input";
+
+export function CreateUserDialog() {
+  return (
+    <Dialog>
+      <DialogTrigger render={<Button variant="outline" />}>
+        Open Dialog
+      </DialogTrigger>
+      <DialogPopup className="sm:max-w-sm">
+        <DialogHeader>
+          <DialogTitle>Edit profile</DialogTitle>
+          <DialogDescription>
+            Make changes to your profile here. Click save when you&apos;re done.
+          </DialogDescription>
+        </DialogHeader>
+        <DialogPanel className="grid gap-4">
+          <Field>
+            <FieldLabel>Name</FieldLabel>
+            <Input defaultValue="Margaret Welsh" type="text" />
+          </Field>
+          <Field>
+            <FieldLabel>Username</FieldLabel>
+            <Input defaultValue="@maggie.welsh" type="text" />
+          </Field>
+        </DialogPanel>
+        <DialogFooter>
+          <DialogClose render={<Button variant="ghost" />}>Cancel</DialogClose>
+          <Button type="submit">Save</Button>
+        </DialogFooter>
+      </DialogPopup>
+    </Dialog>
+  );
+}

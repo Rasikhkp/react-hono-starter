@@ -1,4 +1,4 @@
-import { useNavigate, useSearch } from "@tanstack/react-router";
+import { useNavigate } from "@tanstack/react-router";
 import type { User } from "@/features/user/types";
 import { authAtom } from "@/shared/atoms/authAtom";
 import { Button } from "@/shared/components/ui/button";
@@ -8,29 +8,30 @@ import { api } from "@/shared/lib/api";
 import { useAppForm } from "@/shared/lib/form";
 import { safeFetch } from "@/shared/lib/safeFetch";
 import { store } from "@/shared/lib/store";
-import { signInSchema } from "../schemas/signInSchema";
+import { createUserSchema } from "../schemas/createUserSchema";
 
-export const SignInForm = () => {
+export const UserForm = () => {
   const navigate = useNavigate();
-  const redirect = useSearch({
-    from: "/_auth-layout/sign-in",
-    select: ({ redirect }) => redirect,
-  });
 
   const form = useAppForm({
     defaultValues: {
+      name: "",
       email: "",
       password: "",
     },
     validators: {
-      onSubmit: signInSchema,
-      onChange: signInSchema,
+      onSubmit: createUserSchema,
+      onChange: createUserSchema,
     },
     onSubmit: async ({ value }) => {
       const { data, error } = await safeFetch(
         api
-          .post("auth/login", {
-            json: { password: value.password, email: value.email },
+          .post("auth/register", {
+            json: {
+              name: value.name,
+              password: value.password,
+              email: value.email,
+            },
             credentials: "include",
           })
           .json<{ data: User }>(),
@@ -45,7 +46,7 @@ export const SignInForm = () => {
       } else {
         store.set(authAtom, data?.data);
 
-        navigate({ to: redirect });
+        navigate({ to: "/admin" });
       }
     },
   });
@@ -58,15 +59,27 @@ export const SignInForm = () => {
       }}
     >
       <FieldGroup>
+        <form.AppField name="name">
+          {(field) => (
+            <field.TextField label="Name" placeholder="John Doe" required />
+          )}
+        </form.AppField>
+
         <form.AppField name="email">
-          {(field) => <field.TextField label="Email" required />}
+          {(field) => (
+            <field.TextField
+              label="Email"
+              placeholder="you@example.com"
+              required
+            />
+          )}
         </form.AppField>
 
         <form.AppField name="password">
           {(field) => <field.PasswordField label="Password" />}
         </form.AppField>
 
-        <Button type="submit">Sign In</Button>
+        <Button type="submit">Sign Up</Button>
       </FieldGroup>
     </form>
   );
