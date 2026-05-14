@@ -1,6 +1,6 @@
 import { ContentfulStatusCode } from "hono/utils/http-status"
 
-export const ERROR_CODES = {
+export const ERROR_TYPES = {
   NOT_FOUND: "NOT_FOUND",
   VALIDATION_ERROR: "VALIDATION_ERROR",
   UNAUTHORIZED: "UNAUTHORIZED",
@@ -8,13 +8,13 @@ export const ERROR_CODES = {
   INTERNAL_ERROR: "INTERNAL_ERROR"
 } as const
 
-export type ErrorCode = typeof ERROR_CODES[keyof typeof ERROR_CODES]
+export type ErrorType = typeof ERROR_TYPES[keyof typeof ERROR_TYPES]
 
 export class AppError extends Error {
-  code: ErrorCode
+  code: ErrorType
   status: ContentfulStatusCode
 
-  constructor(code: ErrorCode, message: string, status: ContentfulStatusCode = 400) {
+  constructor(code: ErrorType, message: string, status: ContentfulStatusCode = 400) {
     super(message)
     this.code = code
     this.status = status

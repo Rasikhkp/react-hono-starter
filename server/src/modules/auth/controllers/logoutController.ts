@@ -10,7 +10,7 @@ export const logoutController = async (c: Context) => {
     await logoutService(cookies.refresh_token)
   }
 
-  deleteCookie(c, 'access_cookie', cookieOptions)
+  deleteCookie(c, 'access_token', cookieOptions)
   deleteCookie(c, 'refresh_token', cookieOptions)
 
   return c.json({ data: null })

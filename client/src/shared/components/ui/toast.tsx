@@ -9,8 +9,8 @@ import {
   TriangleAlertIcon,
 } from "lucide-react";
 import type React from "react";
-import { cn } from "@/shared/lib/utils";
 import { buttonVariants } from "@/shared/components/ui/button";
+import { cn } from "@/shared/lib/utils";
 
 const TOAST_ICONS = {
   error: CircleAlertIcon,

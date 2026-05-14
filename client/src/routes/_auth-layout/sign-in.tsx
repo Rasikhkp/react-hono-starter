@@ -1,4 +1,5 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
+import { type } from "arktype";
 import { SignInForm } from "@/features/auth/components/SignInForm";
 import {
   Card,
@@ -10,6 +11,7 @@ import {
 import { FieldDescription } from "@/shared/components/ui/field";
 
 export const Route = createFileRoute("/_auth-layout/sign-in")({
+  validateSearch: type({ redirect: "string?" }),
   component: RouteComponent,
 });
 

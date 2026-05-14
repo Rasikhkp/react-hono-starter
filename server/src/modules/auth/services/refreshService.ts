@@ -1,6 +1,6 @@
 import { v7 } from "uuid";
 import { db } from "@/db/database";
-import { AppError, ERROR_CODES } from "@/utils/error";
+import { AppError, ERROR_TYPES } from "@/utils/error";
 import { hashToken } from "@/utils/hash";
 import { signAccessToken } from "@/utils/jwt";
 import { add } from "date-fns";
@@ -16,7 +16,7 @@ export const refreshService = async (refreshToken: string) => {
 
   if (!token || token.is_revoked) {
     throw new AppError(
-      ERROR_CODES.UNAUTHORIZED,
+      ERROR_TYPES.UNAUTHORIZED,
       "Invalid refresh token",
       401
     );
@@ -24,7 +24,7 @@ export const refreshService = async (refreshToken: string) => {
 
   if (new Date(token.expires_at) < new Date()) {
     throw new AppError(
-      ERROR_CODES.UNAUTHORIZED,
+      ERROR_TYPES.UNAUTHORIZED,
       "Refresh token expired",
       401
     );

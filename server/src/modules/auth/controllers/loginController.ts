@@ -1,6 +1,6 @@
 import { Context } from "hono";
 import { type } from "arktype";
-import { AppError, ERROR_CODES } from "@/utils/error";
+import { AppError, ERROR_TYPES } from "@/utils/error";
 import { loginService } from "../services/loginService";
 import { setCookie } from "hono/cookie";
 import { cookieOptions } from "@/utils/cookie";
@@ -11,14 +11,14 @@ export const loginController = async (c: Context) => {
   const out = signInSchema(body);
 
   if (out instanceof type.errors) {
-    throw new AppError(ERROR_CODES.VALIDATION_ERROR, out.summary, 400)
+    throw new AppError(ERROR_TYPES.VALIDATION_ERROR, out.summary, 400)
   }
 
-  const tokens = await loginService(out);
+  const data = await loginService(out);
 
-  setCookie(c, 'access_token', tokens.accessToken, cookieOptions)
-  setCookie(c, 'refresh_token', tokens.refreshToken, cookieOptions)
+  setCookie(c, 'access_token', data.accessToken, cookieOptions)
+  setCookie(c, 'refresh_token', data.refreshToken, cookieOptions)
 
-  return c.json({ data: null })
+  return c.json({ data: data.user })
 }
 

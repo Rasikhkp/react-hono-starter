@@ -1,8 +1,33 @@
-import { createFileRoute, Outlet } from "@tanstack/react-router";
+import { createFileRoute, Outlet, redirect } from "@tanstack/react-router";
 import { GalleryVerticalEnd } from "lucide-react";
+import type { User } from "@/features/users/types";
+import { authAtom } from "@/shared/atoms/authAtom";
 import { ThemeToggle } from "@/shared/components/ui/theme-toggle";
+import { api } from "@/shared/lib/api";
+import { safeFetch } from "@/shared/lib/safeFetch";
+import { store } from "@/shared/lib/store";
 
 export const Route = createFileRoute("/_auth-layout")({
+  beforeLoad: async () => {
+    const user = store.get(authAtom);
+
+    if (user) {
+      throw redirect({
+        to: "/admin",
+      });
+    } else {
+      const { data } = await safeFetch(
+        api.get("me", { credentials: "include" }).json<{ data: User }>(),
+      );
+
+      if (data?.data) {
+        store.set(authAtom, data.data);
+        throw redirect({
+          to: "/admin",
+        });
+      }
+    }
+  },
   component: RouteComponent,
 });
 

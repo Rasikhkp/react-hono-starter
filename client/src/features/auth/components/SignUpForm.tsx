@@ -1,9 +1,18 @@
+import { useNavigate } from "@tanstack/react-router";
+import type { User } from "@/features/users/types";
+import { authAtom } from "@/shared/atoms/authAtom";
 import { Button } from "@/shared/components/ui/button";
 import { FieldGroup } from "@/shared/components/ui/field";
+import { toastManager } from "@/shared/components/ui/toast";
+import { api } from "@/shared/lib/api";
 import { useAppForm } from "@/shared/lib/form";
+import { safeFetch } from "@/shared/lib/safeFetch";
+import { store } from "@/shared/lib/store";
 import { signUpSchema } from "../schemas/signUpSchema";
 
 export const SignUpForm = () => {
+  const navigate = useNavigate();
+
   const form = useAppForm({
     defaultValues: {
       name: "",
@@ -14,8 +23,31 @@ export const SignUpForm = () => {
       onSubmit: signUpSchema,
       onChange: signUpSchema,
     },
-    onSubmit: ({ value }) => {
-      console.log("value", value);
+    onSubmit: async ({ value }) => {
+      const { data, error } = await safeFetch(
+        api
+          .post("auth/register", {
+            json: {
+              name: value.name,
+              password: value.password,
+              email: value.email,
+            },
+            credentials: "include",
+          })
+          .json<{ data: User }>(),
+      );
+
+      if (error) {
+        toastManager.add({
+          type: "error",
+          description: error.message,
+          title: "Error occured",
+        });
+      } else {
+        store.set(authAtom, data?.data);
+
+        navigate({ to: "/admin" });
+      }
     },
   });
 

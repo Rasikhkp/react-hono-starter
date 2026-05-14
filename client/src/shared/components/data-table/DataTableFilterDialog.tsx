@@ -49,8 +49,6 @@ export function DataTableFilterDialog<TData>({
   const [open, setOpen] = useState(false);
   const [draft, setDraft] = useState<DraftFilters>({});
 
-  console.log("draft", draft);
-
   useEffect(() => {
     if (!open) return;
     setDraft(getInitialDraft(filterableColumns, table as Table<unknown>));

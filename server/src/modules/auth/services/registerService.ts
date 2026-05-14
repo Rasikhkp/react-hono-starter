@@ -1,7 +1,10 @@
 import { v7 } from "uuid";
 import { db } from "@/db/database";
 import { hashPassword } from "@/utils/password";
-import { AppError, ERROR_CODES } from "@/utils/error";
+import { AppError, ERROR_TYPES } from "@/utils/error";
+import { signAccessToken } from "@/utils/jwt";
+import { hashToken } from "@/utils/hash";
+import { add } from "date-fns";
 
 export const registerService = async (input: {
   email: string;
@@ -10,29 +13,68 @@ export const registerService = async (input: {
 }) => {
   const existing = await db
     .selectFrom("users")
-    .select(["id"])
+    .select(['id', 'name', 'password', 'email', 'is_email_verified', 'is_active'])
     .where("email", "=", input.email)
     .executeTakeFirst();
 
   if (existing) {
     throw new AppError(
-      ERROR_CODES.VALIDATION_ERROR,
-      "Invalid credentials",
+      ERROR_TYPES.VALIDATION_ERROR,
+      "Email already registered",
       400
     );
   }
 
   const hashedPassword = await hashPassword(input.password);
 
+  const newUserId = v7()
+
   await db
     .insertInto("users")
     .values({
-      id: v7(),
+      id: newUserId,
       email: input.email,
       name: input.name,
       password: hashedPassword,
     })
     .execute();
+
+  const insertedUser = await db
+    .selectFrom('users')
+    .select(['id', 'name', 'email', 'is_active', 'is_email_verified'])
+    .where('id', '=', newUserId)
+    .executeTakeFirst()
+
+  if (!insertedUser) {
+    throw new AppError(
+      ERROR_TYPES.NOT_FOUND,
+      "User not found",
+      404
+    );
+  }
+
+  const accessToken = await signAccessToken({
+    sub: insertedUser.id,
+  });
+
+  const refreshToken = v7();
+  const tokenHash = await hashToken(refreshToken);
+
+  await db
+    .insertInto("refresh_tokens")
+    .values({
+      id: v7(),
+      user_id: insertedUser.id,
+      token_hash: tokenHash,
+      expires_at: add(new Date(), { days: 7 }),
+    })
+    .execute();
+
+  return {
+    accessToken,
+    refreshToken,
+    user: insertedUser
+  }
 };
 
 

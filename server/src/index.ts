@@ -1,12 +1,13 @@
 import { Hono } from "hono";
 import { authRoutes } from "./modules/auth/routes";
-import { AppError, ERROR_CODES } from "./utils/error";
+import { AppError, ERROR_TYPES } from "./utils/error";
 import { authMiddleware } from "./middlewares/authMiddleware";
 import { cors } from 'hono/cors'
 import { User } from "./db/schema";
 import { logoutController } from "./modules/auth/controllers/logoutController";
 import { Scalar } from "@scalar/hono-api-reference";
 import openapi from "../openapi.json";
+import { logger } from "hono/logger";
 
 type Variables = {
   user: User
@@ -14,8 +15,7 @@ type Variables = {
 
 const app = new Hono<{ Variables: Variables }>();
 
-app.get('/scalar', Scalar({ url: '/doc' }))
-app.get('/doc', (c) => c.json(openapi))
+app.use(logger())
 
 app.use(
   '*',
@@ -31,6 +31,9 @@ app.use(
 const publicApi = new Hono<{ Variables: Variables }>();
 
 publicApi.route("/auth", authRoutes);
+
+app.get('/scalar', Scalar({ url: '/doc' }))
+app.get('/doc', (c) => c.json(openapi))
 
 //-------------------------------
 // Protected API
@@ -64,10 +67,8 @@ app.onError((err, c) => {
   if (err instanceof AppError) {
     return c.json(
       {
-        error: {
-          code: err.code,
-          message: err.message,
-        },
+        type: err.code,
+        message: err.message,
       },
       err.status
     );
@@ -77,10 +78,8 @@ app.onError((err, c) => {
 
   return c.json(
     {
-      error: {
-        code: ERROR_CODES.INTERNAL_ERROR,
-        message: "Something went wrong",
-      },
+      type: ERROR_TYPES.INTERNAL_ERROR,
+      message: "Something went wrong",
     },
     500
   );

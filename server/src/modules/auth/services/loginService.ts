@@ -1,6 +1,6 @@
 import { v7 } from "uuid";
 import { db } from "@/db/database";
-import { AppError, ERROR_CODES } from "@/utils/error";
+import { AppError, ERROR_TYPES } from "@/utils/error";
 import { verifyPassword } from "@/utils/password";
 import { signAccessToken } from "@/utils/jwt";
 import { hashToken } from "@/utils/hash";
@@ -12,14 +12,14 @@ export const loginService = async (input: {
 }) => {
   const user = await db
     .selectFrom("users")
-    .selectAll()
+    .select(['id', 'name', 'password', 'email', 'is_email_verified', 'is_active'])
     .where("email", "=", input.email)
     .executeTakeFirst();
 
   if (!user) {
     throw new AppError(
-      ERROR_CODES.UNAUTHORIZED,
-      "Invalid credentials",
+      ERROR_TYPES.UNAUTHORIZED,
+      "Email or password is wrong",
       401
     );
   }
@@ -28,8 +28,8 @@ export const loginService = async (input: {
 
   if (!valid) {
     throw new AppError(
-      ERROR_CODES.UNAUTHORIZED,
-      "Invalid credentials",
+      ERROR_TYPES.UNAUTHORIZED,
+      "Email or password is wrong",
       401
     );
   }
@@ -54,5 +54,6 @@ export const loginService = async (input: {
   return {
     accessToken,
     refreshToken,
+    user
   };
 };

@@ -1,5 +1,6 @@
 import { createFileRoute } from "@tanstack/react-router";
-import { useSetAtom } from "jotai";
+import { useAtomValue, useSetAtom } from "jotai";
+import { authAtom } from "@/shared/atoms/authAtom";
 import { breadcrumbAtom } from "@/shared/atoms/breadcrumbAtom";
 import { Button } from "@/shared/components/ui/button";
 
@@ -9,6 +10,7 @@ export const Route = createFileRoute("/admin/")({
 
 function RouteComponent() {
   const setBreadcrumb = useSetAtom(breadcrumbAtom);
+  const user = useAtomValue(authAtom);
 
   setBreadcrumb([
     {
@@ -17,7 +19,9 @@ function RouteComponent() {
     },
   ]);
 
-  const handleClick = async () => {};
+  const handleClick = async () => {
+    console.log("user", user);
+  };
 
   return (
     <div>

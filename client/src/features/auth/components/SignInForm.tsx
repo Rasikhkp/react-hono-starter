@@ -1,11 +1,22 @@
+import { useNavigate, useSearch } from "@tanstack/react-router";
+import type { User } from "@/features/users/types";
+import { authAtom } from "@/shared/atoms/authAtom";
 import { Button } from "@/shared/components/ui/button";
 import { FieldGroup } from "@/shared/components/ui/field";
-import { useAppForm } from "@/shared/lib/form";
-import { signInSchema } from "../schemas/signInSchema";
-import { login } from "../api/login";
 import { toastManager } from "@/shared/components/ui/toast";
+import { api } from "@/shared/lib/api";
+import { useAppForm } from "@/shared/lib/form";
+import { safeFetch } from "@/shared/lib/safeFetch";
+import { store } from "@/shared/lib/store";
+import { signInSchema } from "../schemas/signInSchema";
 
 export const SignInForm = () => {
+  const navigate = useNavigate();
+  const redirect = useSearch({
+    from: "/_auth-layout/sign-in",
+    select: ({ redirect }) => redirect,
+  });
+
   const form = useAppForm({
     defaultValues: {
       email: "",
@@ -16,15 +27,25 @@ export const SignInForm = () => {
       onChange: signInSchema,
     },
     onSubmit: async ({ value }) => {
-      console.log("value", value);
-      const { error } = await login(value.email, value.password);
+      const { data, error } = await safeFetch(
+        api
+          .post("auth/login", {
+            json: { password: value.password, email: value.email },
+            credentials: "include",
+          })
+          .json<{ data: User }>(),
+      );
 
       if (error) {
         toastManager.add({
-          description: "There was a problem with your request.",
-          title: error.error.message,
           type: "error",
+          description: error.message,
+          title: "Error occured",
         });
+      } else {
+        store.set(authAtom, data?.data);
+
+        navigate({ to: redirect });
       }
     },
   });

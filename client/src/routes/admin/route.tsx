@@ -1,9 +1,34 @@
-import { createFileRoute, Outlet } from "@tanstack/react-router";
+import { createFileRoute, Outlet, redirect } from "@tanstack/react-router";
+import type { User } from "@/features/users/types";
+import { authAtom } from "@/shared/atoms/authAtom";
 import { AppSidebar } from "@/shared/components/AppSidebar";
 import { NavBar } from "@/shared/components/NavBar";
 import { SidebarInset, SidebarProvider } from "@/shared/components/ui/sidebar";
+import { api } from "@/shared/lib/api";
+import { safeFetch } from "@/shared/lib/safeFetch";
+import { store } from "@/shared/lib/store";
 
 export const Route = createFileRoute("/admin")({
+  beforeLoad: async ({ location }) => {
+    const user = store.get(authAtom);
+
+    if (!user) {
+      const { data, error } = await safeFetch(
+        api.get("me", { credentials: "include" }).json<{ data: User }>(),
+      );
+
+      if (error && error.type === "UNAUTHORIZED") {
+        throw redirect({
+          to: "/sign-in",
+          search: {
+            redirect: location.href,
+          },
+        });
+      }
+
+      store.set(authAtom, data?.data);
+    }
+  },
   component: RouteComponent,
 });
 
