@@ -9,28 +9,41 @@ import { DataTableToolbar } from "./DataTableToolbar";
 
 export function DataTable<TData>({
   data,
+  isLoading,
+  isError,
   columns,
-  searchColumn,
   searchPlaceholder,
   filterableColumns,
+  sortableColumns,
   onExport,
+  onDeleteMany,
   defaultPageSize,
   defaultSort,
 }: DataTableProps<TData>) {
-  const table = useDataTable({ data, columns, defaultPageSize, defaultSort });
+  const table = useDataTable({
+    data,
+    isError,
+    isLoading,
+    columns,
+    defaultPageSize,
+    defaultSort,
+  });
 
   return (
     <CardFrame className="w-full">
       <DataTableToolbar
         table={table}
-        searchColumn={searchColumn}
         searchPlaceholder={searchPlaceholder}
         filterableColumns={filterableColumns}
+        sortableColumns={sortableColumns}
         onExport={onExport}
+        onDeleteMany={onDeleteMany}
       />
       <Table variant="card" className="table-fixed">
         <DataTableHeader headerGroups={table.getHeaderGroups()} />
         <DataTableBody
+          isLoading={isLoading}
+          isError={isError}
           rows={table.getRowModel().rows}
           columnCount={columns.length}
         />

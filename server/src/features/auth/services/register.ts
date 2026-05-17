@@ -11,33 +11,29 @@ export const register = async (input: {
   password: string;
   name: string;
 }) => {
-  const existing = await db
-    .selectFrom("users")
-    .select(['id', 'name', 'password', 'email', 'isEmailVerified', 'isActive'])
-    .where("email", "=", input.email)
-    .executeTakeFirst();
-
-  if (existing) {
-    throw new AppError(
-      ERROR_TYPES.VALIDATION_ERROR,
-      "Email already registered",
-      400
-    );
-  }
-
   const hashedPassword = await hashPassword(input.password);
-
   const newUserId = v7()
 
-  await db
-    .insertInto("users")
-    .values({
-      id: newUserId,
-      email: input.email,
-      name: input.name,
-      password: hashedPassword,
-    })
-    .execute();
+  try {
+    await db
+      .insertInto("users")
+      .values({
+        id: newUserId,
+        email: input.email,
+        name: input.name,
+        password: hashedPassword,
+      })
+      .execute();
+  } catch (err: any) {
+    if (err.code === 'ER_DUP_ENTRY') {
+      throw new AppError(
+        ERROR_TYPES.CONFLICT,
+        "Email already registered",
+        409
+      );
+    }
+    throw err;
+  }
 
   const insertedUser = await db
     .selectFrom('users')

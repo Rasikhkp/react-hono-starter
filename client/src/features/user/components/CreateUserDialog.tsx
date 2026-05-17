@@ -1,3 +1,4 @@
+import { useState } from "react";
 import { Button } from "@/shared/components/ui/button";
 import {
   Dialog,
@@ -10,35 +11,29 @@ import {
   DialogTitle,
   DialogTrigger,
 } from "@/shared/components/ui/dialog";
-import { Field, FieldLabel } from "@/shared/components/ui/field";
-import { Input } from "@/shared/components/ui/input";
+import { UserForm } from "./UserForm";
 
 export function CreateUserDialog() {
+  const [open, setOpen] = useState(false);
+
   return (
-    <Dialog>
-      <DialogTrigger render={<Button variant="outline" />}>
-        Open Dialog
-      </DialogTrigger>
+    <Dialog open={open} onOpenChange={setOpen}>
+      <DialogTrigger render={<Button />}>Create User</DialogTrigger>
       <DialogPopup className="sm:max-w-sm">
         <DialogHeader>
-          <DialogTitle>Edit profile</DialogTitle>
+          <DialogTitle>Create User</DialogTitle>
           <DialogDescription>
-            Make changes to your profile here. Click save when you&apos;re done.
+            Fill in the information below to create a user
           </DialogDescription>
         </DialogHeader>
         <DialogPanel className="grid gap-4">
-          <Field>
-            <FieldLabel>Name</FieldLabel>
-            <Input defaultValue="Margaret Welsh" type="text" />
-          </Field>
-          <Field>
-            <FieldLabel>Username</FieldLabel>
-            <Input defaultValue="@maggie.welsh" type="text" />
-          </Field>
+          <UserForm mode="create" onSuccess={() => setOpen(false)} />
         </DialogPanel>
         <DialogFooter>
           <DialogClose render={<Button variant="ghost" />}>Cancel</DialogClose>
-          <Button type="submit">Save</Button>
+          <Button type="submit" form="user-form">
+            Save
+          </Button>
         </DialogFooter>
       </DialogPopup>
     </Dialog>

@@ -1,5 +1,5 @@
 import { useNavigate } from "@tanstack/react-router";
-import { useSetAtom } from "jotai";
+import { useAtom } from "jotai";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -17,7 +17,7 @@ import { toastManager } from "./ui/toast";
 
 export function UserMenu() {
   const navigate = useNavigate();
-  const setAuth = useSetAtom(authAtom);
+  const [auth, setAuth] = useAtom(authAtom);
 
   const handleLogout = async () => {
     const { error } = await safeFetch(
@@ -55,10 +55,8 @@ export function UserMenu() {
       <DropdownMenuContent className="w-52">
         <DropdownMenuGroup>
           <DropdownMenuLabel className="text-md text-foreground">
-            <div>John Doe</div>
-            <div className="text-xs text-muted-foreground">
-              johndoe@gmail.com
-            </div>
+            <div>{auth?.name}</div>
+            <div className="text-xs text-muted-foreground">{auth?.email}</div>
           </DropdownMenuLabel>
         </DropdownMenuGroup>
         <DropdownMenuSeparator />

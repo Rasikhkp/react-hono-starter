@@ -45,6 +45,8 @@ protectedApi.use("*", authMiddleware);
 
 protectedApi.get("/me", (c) => {
   const user = c.get("user");
+
+  console.log('user in me', user)
   return c.json({ data: user });
 });
 
@@ -69,9 +71,13 @@ app.onError((err, c) => {
   if (err instanceof AppError) {
     return c.json(
       {
-        type: err.code,
-        message: err.message,
-      },
+        data: null,
+        error: {
+          type: err.code,
+          message: err.message,
+        }
+      }
+      ,
       err.status
     );
   }
@@ -80,8 +86,11 @@ app.onError((err, c) => {
 
   return c.json(
     {
-      type: ERROR_TYPES.INTERNAL_ERROR,
-      message: "Something went wrong",
+      data: null,
+      error: {
+        type: ERROR_TYPES.INTERNAL_ERROR,
+        message: "Something went wrong",
+      }
     },
     500
   );

@@ -5,20 +5,32 @@ import { getCookie } from "hono/cookie";
 import { db } from "../db/database";
 
 export const authMiddleware = async (c: Context, next: Next) => {
-  const cookies = getCookie(c)
+  const token = getCookie(c, "access_token");
 
-  if (!cookies.access_token) {
+  if (!token) {
     throw new AppError(
       ERROR_TYPES.UNAUTHORIZED,
-      "Missing or invalid authorization header",
+      "Missing access token",
       401
     );
   }
 
   try {
-    const payload = await verifyAccessToken(cookies.access_token);
+    const payload = await verifyAccessToken(token);
 
-    const user = await db.selectFrom('users').select(['id', 'name', 'email', 'isActive', 'isEmailVerified']).where('id', '=', payload.payload.sub || '0').executeTakeFirst()
+    const user = await db
+      .selectFrom("users")
+      .select(["id", "name", "email", "isActive", "isEmailVerified"])
+      .where("id", "=", payload.payload.sub || '0')
+      .executeTakeFirst();
+
+    if (!user) {
+      throw new AppError(
+        ERROR_TYPES.UNAUTHORIZED,
+        "User not found",
+        401
+      );
+    }
 
     c.set("user", user);
 

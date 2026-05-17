@@ -1,7 +1,7 @@
 import { Checkbox } from "@/shared/components/ui/checkbox";
-import { Input } from "@/shared/components/ui/input";
 import { Label } from "@/shared/components/ui/label";
 import { RadioGroup, RadioGroupItem } from "@/shared/components/ui/radio-group";
+
 import {
   Select,
   SelectContent,
@@ -9,44 +9,30 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/shared/components/ui/select";
+
 import type { FilterableColumn } from "@/shared/types/dataTable";
 
 type Props = {
   col: FilterableColumn;
-  value: string | string[];
-  onStringChange: (value: string) => void;
-  onCheckboxChange: (value: string, checked: boolean) => void;
+  value: (string | number) | (string | number)[];
+  onValueChange: (value: (string | number) | (string | number)[]) => void;
 };
 
-export function FilterField({
-  col,
-  value,
-  onStringChange,
-  onCheckboxChange,
-}: Props) {
+export function FilterField({ col, value, onValueChange }: Props) {
   switch (col.type) {
-    case "text":
-      return (
-        <Input
-          id={`filter-${col.id}`}
-          placeholder={`Search ${col.label.toLowerCase()}...`}
-          value={value as string}
-          onChange={(e) => onStringChange(e.target.value)}
-        />
-      );
-
     case "select":
       return (
         <Select
-          value={value as string}
-          onValueChange={(v) => v && onStringChange(v)}
+          value={String(value)}
+          onValueChange={(value) => value && onValueChange(value)}
         >
           <SelectTrigger id={`filter-${col.id}`}>
             <SelectValue placeholder={`All ${col.label}`} />
           </SelectTrigger>
+
           <SelectContent>
             {col.options.map((opt) => (
-              <SelectItem key={opt.value} value={opt.value}>
+              <SelectItem key={opt.value} value={String(opt.value)}>
                 {opt.label}
               </SelectItem>
             ))}
@@ -61,11 +47,20 @@ export function FilterField({
             <div key={opt.value} className="flex items-center gap-2">
               <Checkbox
                 id={`filter-${col.id}-${opt.value}`}
-                checked={(value as string[]).includes(opt.value)}
-                onCheckedChange={(checked) =>
-                  onCheckboxChange(opt.value, !!checked)
+                checked={
+                  Array.isArray(value) ? value.includes(opt.value) : false
                 }
+                onCheckedChange={(checked) => {
+                  const current = Array.isArray(value) ? value : [];
+
+                  onValueChange(
+                    checked
+                      ? [...current, opt.value]
+                      : current.filter((v) => v !== opt.value),
+                  );
+                }}
               />
+
               <Label
                 htmlFor={`filter-${col.id}-${opt.value}`}
                 className="font-normal"
@@ -80,16 +75,17 @@ export function FilterField({
     case "radio":
       return (
         <RadioGroup
-          value={value as string}
-          onValueChange={onStringChange}
+          value={String(value)}
+          onValueChange={onValueChange}
           className="flex flex-col gap-2"
         >
           {col.options.map((opt) => (
             <div key={opt.value} className="flex items-center gap-2">
               <RadioGroupItem
                 id={`filter-${col.id}-${opt.value}`}
-                value={opt.value}
+                value={String(opt.value)}
               />
+
               <Label
                 htmlFor={`filter-${col.id}-${opt.value}`}
                 className="font-normal"

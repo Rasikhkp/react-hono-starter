@@ -1,59 +1,86 @@
 import type { Table } from "@tanstack/react-table";
-import { DownloadIcon, SearchIcon } from "lucide-react";
-import { type ChangeEvent, useCallback } from "react";
+import { DownloadIcon, SearchIcon, Trash } from "lucide-react";
+import { useCallback } from "react";
 import { Button } from "@/shared/components/ui/button";
-import { Input } from "@/shared/components/ui/input";
-import type { FilterableColumn } from "@/shared/types/dataTable";
+import type {
+  FilterableColumn,
+  SortableColumn,
+} from "@/shared/types/dataTable";
+import { DebounceInput } from "../ui/debounce-input";
+import { InputGroup, InputGroupAddon } from "../ui/input-group";
 import { DataTableFilterDialog } from "./DataTableFilterDialog";
+import { DataTableSortDropdown } from "./DataTableSortDropdown";
 
 type Props<TData> = {
   table: Table<TData>;
-  searchColumn?: string;
   searchPlaceholder?: string;
   filterableColumns?: FilterableColumn[];
+  sortableColumns?: SortableColumn[];
   onExport?: (data: TData[]) => void;
+  onDeleteMany?: (data: unknown[]) => void;
 };
 
 export function DataTableToolbar<TData>({
   table,
-  searchColumn,
   searchPlaceholder = "Search...",
   filterableColumns,
+  sortableColumns,
   onExport,
+  onDeleteMany,
 }: Props<TData>) {
-  const handleSearch = useCallback(
-    (e: ChangeEvent<HTMLInputElement>) => {
-      if (!searchColumn) return;
-      table.getColumn(searchColumn)?.setFilterValue(e.target.value);
-      table.setPageIndex(0);
-    },
-    [table, searchColumn],
-  );
+  const handleSearch = (value: string) => {
+    table.setGlobalFilter(value);
+    table.setPageIndex(0);
+  };
 
-  const searchValue = searchColumn
-    ? ((table.getColumn(searchColumn)?.getFilterValue() as string) ?? "")
-    : "";
+  const handleDeleteMany = useCallback(() => {
+    const users = table.getSelectedRowModel().rows.map((r) => r.original);
 
-  const hasToolbar = searchColumn || filterableColumns?.length || onExport;
-  if (!hasToolbar) return null;
+    onDeleteMany?.(users);
+
+    table.resetRowSelection();
+  }, [table]);
+
+  const isSelected =
+    table.getIsSomePageRowsSelected() || table.getIsAllPageRowsSelected();
 
   return (
     <div className="flex items-center justify-between gap-2 border-b p-2">
-      {/* Left side: search */}
-      {searchColumn && (
-        <div className="relative w-60 shrink">
-          <SearchIcon className="absolute left-2.5 top-1/2 size-3.5 -translate-y-1/2 text-muted-foreground pointer-events-none" />
-          <Input
-            placeholder={searchPlaceholder}
-            value={searchValue}
-            onChange={handleSearch}
-            className="pl-8 text-sm bg-background"
-          />
-        </div>
-      )}
+      <InputGroup className="max-w-80">
+        <DebounceInput
+          unstyled={true}
+          placeholder={searchPlaceholder}
+          debounceMs={300}
+          onDebouncedChange={handleSearch}
+        />
+        <InputGroupAddon>
+          <SearchIcon aria-hidden="true" />
+        </InputGroupAddon>
+      </InputGroup>
 
       {/* Right side: filter + export */}
       <div className="flex items-center gap-2">
+        {isSelected && (
+          <Button
+            variant="destructive-outline"
+            size="sm"
+            className="relative text-destructive"
+            onClick={handleDeleteMany}
+          >
+            <div className="absolute -top-1.5 -right-1.5 flex size-4 items-center justify-center rounded-full bg-primary text-[10px] font-medium text-primary-foreground">
+              {table.getSelectedRowModel().rows.length}
+            </div>
+            <Trash />
+          </Button>
+        )}
+
+        {sortableColumns?.length ? (
+          <DataTableSortDropdown
+            table={table}
+            sortableColumns={sortableColumns}
+          />
+        ) : null}
+
         {filterableColumns?.length ? (
           <DataTableFilterDialog
             table={table}

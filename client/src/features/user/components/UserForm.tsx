@@ -1,58 +1,120 @@
-import { useNavigate } from "@tanstack/react-router";
-import type { User } from "@/features/user/types";
-import { authAtom } from "@/shared/atoms/authAtom";
-import { Button } from "@/shared/components/ui/button";
+import { useMutation } from "@tanstack/react-query";
+import { queryClient } from "@/main";
 import { FieldGroup } from "@/shared/components/ui/field";
 import { toastManager } from "@/shared/components/ui/toast";
 import { api } from "@/shared/lib/api";
+import { parseSafeError } from "@/shared/lib/error";
 import { useAppForm } from "@/shared/lib/form";
-import { safeFetch } from "@/shared/lib/safeFetch";
-import { store } from "@/shared/lib/store";
 import { createUserSchema } from "../schemas/createUserSchema";
+import { editUserSchema } from "../schemas/editUserSchema";
+import type { CreateUser, EditUser, User } from "../types";
 
-export const UserForm = () => {
-  const navigate = useNavigate();
+type CreateModeProps = {
+  mode: "create";
+  onSuccess: () => void;
+};
+
+type EditModeProps = {
+  mode: "edit";
+  user: User;
+  onSuccess: () => void;
+};
+
+type UserFormProps = CreateModeProps | EditModeProps;
+
+export const UserForm = (props: UserFormProps) => {
+  const isEdit = props.mode === "edit";
+
+  const handleError = (error: unknown) => {
+    const parsedError = parseSafeError(error);
+
+    toastManager.add({
+      type: "error",
+      title: "Error occurred",
+      description: parsedError.message,
+    });
+  };
+
+  const createMutation = useMutation({
+    mutationFn: async (data: CreateUser) => {
+      return api
+        .post("users", {
+          credentials: "include",
+          json: data,
+        })
+        .json();
+    },
+
+    onSuccess: () => {
+      toastManager.add({
+        type: "success",
+        title: "User created",
+      });
+
+      queryClient.invalidateQueries({ queryKey: ["users"] });
+      props.onSuccess();
+    },
+
+    onError: handleError,
+  });
+
+  const editMutation = useMutation({
+    mutationFn: async (data: EditUser) => {
+      if (!isEdit) {
+        throw new Error("Invalid edit state");
+      }
+
+      return api
+        .put(`users/${props.user.id}`, {
+          credentials: "include",
+          json: data,
+        })
+        .json();
+    },
+
+    onSuccess: () => {
+      toastManager.add({
+        type: "success",
+        title: "User updated",
+      });
+
+      queryClient.invalidateQueries({ queryKey: ["users"] });
+      props.onSuccess();
+    },
+
+    onError: handleError,
+  });
 
   const form = useAppForm({
     defaultValues: {
-      name: "",
-      email: "",
+      name: isEdit ? props.user.name : "",
+      email: isEdit ? props.user.email : "",
       password: "",
+      oldPassword: "",
+      newPassword: "",
+      isActive: isEdit ? Boolean(props.user.isActive) : false,
+      isEmailVerified: isEdit ? Boolean(props.user.isEmailVerified) : false,
     },
+
     validators: {
-      onSubmit: createUserSchema,
-      onChange: createUserSchema,
+      onSubmit: isEdit ? editUserSchema : createUserSchema,
+      onChange: isEdit ? editUserSchema : createUserSchema,
     },
-    onSubmit: async ({ value }) => {
-      const { data, error } = await safeFetch(
-        api
-          .post("auth/register", {
-            json: {
-              name: value.name,
-              password: value.password,
-              email: value.email,
-            },
-            credentials: "include",
-          })
-          .json<{ data: User }>(),
-      );
 
-      if (error) {
-        toastManager.add({
-          type: "error",
-          description: error.message,
-          title: "Error occured",
-        });
-      } else {
-        store.set(authAtom, data?.data);
+    onSubmit: ({ value }) => {
+      if (isEdit) {
+        editMutation.mutate(value);
 
-        navigate({ to: "/admin" });
+        return;
       }
+
+      createMutation.mutate(value);
     },
   });
 
   return (
     <form
+      id="user-form"
       onSubmit={(e) => {
         e.preventDefault();
         form.handleSubmit();
@@ -75,11 +137,31 @@ export const UserForm = () => {
           )}
         </form.AppField>
 
-        <form.AppField name="password">
-          {(field) => <field.PasswordField label="Password" />}
+        {isEdit ? (
+          <>
+            <form.AppField name="oldPassword">
+              {(field) => <field.PasswordField label="Old Password" />}
+            </form.AppField>
+
+            <form.AppField name="newPassword">
+              {(field) => <field.PasswordField label="New Password" />}
+            </form.AppField>
+          </>
+        ) : (
+          <form.AppField name="password">
+            {(field) => (
+              <field.PasswordField label="Password" required={true} />
+            )}
+          </form.AppField>
+        )}
+
+        <form.AppField name="isActive">
+          {(field) => <field.CheckboxField label="Is active" />}
         </form.AppField>
 
-        <Button type="submit">Sign Up</Button>
+        <form.AppField name="isEmailVerified">
+          {(field) => <field.CheckboxField label="Is email verified" />}
+        </form.AppField>
       </FieldGroup>
     </form>
   );

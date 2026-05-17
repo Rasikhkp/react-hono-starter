@@ -56,7 +56,7 @@ export function AppSidebar() {
       <SidebarContent>
         <SidebarGroup>
           <SidebarGroupLabel>Menu</SidebarGroupLabel>
-          <SidebarMenu>
+          <SidebarMenu className="gap-1">
             {data.map((d) => (
               <SidebarMenuItem key={d.name}>
                 <Link to={d.url}>

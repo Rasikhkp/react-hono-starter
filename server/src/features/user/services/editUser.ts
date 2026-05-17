@@ -13,9 +13,7 @@ type EditUser = {
 }
 
 export const editUser = async (input: EditUser) => {
-  const user = await db.selectFrom('users').select(['id', 'password']).executeTakeFirst()
-
-  console.log('user', user)
+  const user = await db.selectFrom('users').select(['id', 'password']).where('id', '=', input.id).executeTakeFirst()
 
   if (!user) {
     throw new AppError(
@@ -32,9 +30,9 @@ export const editUser = async (input: EditUser) => {
 
     if (!valid) {
       throw new AppError(
-        ERROR_TYPES.VALIDATION_ERROR,
+        ERROR_TYPES.UNAUTHORIZED,
         "Old password is wrong",
-        403
+        401
       );
     }
 

@@ -1,18 +1,13 @@
 import { Context } from "hono";
-import { type } from "arktype";
-import { AppError, ERROR_TYPES } from "@/lib/error";
 import { deleteUserSchema } from "../schemas/deleteUserSchema";
 import { deleteUser } from "../services/deleteUser";
+import { validateData } from "@/lib/validateData";
 
 export const deleteUserController = async (c: Context) => {
   const id = c.req.param('id')
-  const out = deleteUserSchema({ id });
+  const validated = validateData({ id }, deleteUserSchema)
 
-  if (out instanceof type.errors) {
-    throw new AppError(ERROR_TYPES.VALIDATION_ERROR, out.summary, 422)
-  }
-
-  await deleteUser(out);
+  await deleteUser(validated);
 
   return c.json({ data: null });
 }

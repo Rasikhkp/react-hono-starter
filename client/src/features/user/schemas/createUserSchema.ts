@@ -10,4 +10,6 @@ export const createUserSchema = type({
   password: type("string >= 8").configure({
     message: "Password must be at least 8 characters",
   }),
+  isActive: type("boolean"),
+  isEmailVerified: type("boolean"),
 });
