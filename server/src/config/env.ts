@@ -8,5 +8,8 @@ export const env = arkenv({
   DATABASE_PASSWORD: "string",
   DATABASE_NAME: "string",
   DATABASE_PORT: "number",
-  ENV: "string"
+  ENV: "string",
+  GOOGLE_CLIENT_ID: "string",
+  GOOGLE_CLIENT_SECRET: "string",
+  GOOGLE_REDIRECT_URI: "string",
 });

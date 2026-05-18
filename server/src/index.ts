@@ -2,16 +2,18 @@ import { Hono } from "hono";
 import { authRoutes } from "./features/auth/routes";
 import { AppError, ERROR_TYPES } from "./lib/error";
 import { authMiddleware } from "./middlewares/authMiddleware";
-import { cors } from 'hono/cors'
-import { User } from "./db/schema";
+import { cors } from "hono/cors";
 import { logoutController } from "./features/auth/controllers/logoutController";
 import { Scalar } from "@scalar/hono-api-reference";
 import openapi from "../openapi.json";
 import { logger } from "hono/logger";
 import { userRoutes } from "./features/user/routes";
+import type { AuthUser } from "./lib/authUser";
+import { setPasswordController } from "./features/auth/controllers/setPasswordController";
+import { unlinkGoogleController } from "./features/auth/controllers/unlinkGoogleController";
 
 type Variables = {
-  user: User
+  user: AuthUser;
 };
 
 const app = new Hono<{ Variables: Variables }>();
@@ -50,8 +52,10 @@ protectedApi.get("/me", (c) => {
   return c.json({ data: user });
 });
 
-protectedApi.post('/auth/logout', logoutController)
-protectedApi.route('/', userRoutes)
+protectedApi.post("/auth/logout", logoutController);
+protectedApi.post("/auth/set-password", setPasswordController);
+protectedApi.post("/auth/unlink-google", unlinkGoogleController);
+protectedApi.route("/", userRoutes);
 
 //-------------------------------
 // Root routes

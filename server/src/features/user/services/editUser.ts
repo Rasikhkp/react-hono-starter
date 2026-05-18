@@ -26,6 +26,14 @@ export const editUser = async (input: EditUser) => {
   let newHashedPassword;
 
   if (input.oldPassword && input.newPassword) {
+    if (user.password === null) {
+      throw new AppError(
+        ERROR_TYPES.VALIDATION_ERROR,
+        "Password change is only available after a password has been set for this account",
+        400
+      );
+    }
+
     const valid = await verifyPassword(user.password, input.oldPassword);
 
     if (!valid) {

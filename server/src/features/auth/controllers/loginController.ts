@@ -14,6 +14,6 @@ export const loginController = async (c: Context) => {
   setCookie(c, 'access_token', result.accessToken, cookieOptions)
   setCookie(c, 'refresh_token', result.refreshToken, cookieOptions)
 
-  return c.json({ data: result.user })
+  return c.json({ data: result.user });
 }
 

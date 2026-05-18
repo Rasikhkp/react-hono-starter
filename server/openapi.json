@@ -173,6 +173,116 @@
         }
       }
     },
+    "/api/auth/google": {
+      "post": {
+        "tags": ["Auth"],
+        "summary": "Sign in with Google (authorization code)",
+        "description": "Exchanges a GIS popup authorization code using GOOGLE_REDIRECT_URI from server env (must match SPA origin and Google Console Authorized redirect URIs); provisions/links user and sets cookies.",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "code": {
+                    "type": "string",
+                    "description": "Authorization code from Google Identity Services popup flow"
+                  }
+                },
+                "required": ["code"]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Session created; cookies set",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "data": {
+                      "$ref": "#/components/schemas/AuthUser"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Validation or linking requirement (e.g. unverified Google email)"
+          },
+          "409": {
+            "description": "Conflicting Google or email linkage"
+          }
+        }
+      }
+    },
+    "/api/auth/set-password": {
+      "post": {
+        "tags": ["Auth"],
+        "summary": "Set password (OAuth-first accounts)",
+        "security": [{ "cookieAuth": [] }],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "password": { "type": "string", "minLength": 8 }
+                },
+                "required": ["password"]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Password saved",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "data": { "$ref": "#/components/schemas/AuthUser" }
+                  }
+                }
+              }
+            }
+          },
+          "409": { "description": "Password already set" }
+        }
+      }
+    },
+    "/api/auth/unlink-google": {
+      "post": {
+        "tags": ["Auth"],
+        "summary": "Disconnect Google from account",
+        "description": "Requires an existing password. Clears googleSub.",
+        "security": [{ "cookieAuth": [] }],
+        "responses": {
+          "200": {
+            "description": "Google unlinked",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "data": { "$ref": "#/components/schemas/AuthUser" }
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Google not linked or password not set"
+          }
+        }
+      }
+    },
     "/api/me": {
       "get": {
         "tags": [
@@ -193,7 +303,7 @@
                   "type": "object",
                   "properties": {
                     "data": {
-                      "$ref": "#/components/schemas/User"
+                      "$ref": "#/components/schemas/AuthUser"
                     }
                   }
                 }
@@ -239,6 +349,18 @@
   },
   "components": {
     "schemas": {
+      "AuthUser": {
+        "type": "object",
+        "properties": {
+          "id": { "type": "string" },
+          "name": { "type": "string" },
+          "email": { "type": "string", "format": "email" },
+          "isActive": { "type": "integer", "nullable": true },
+          "isEmailVerified": { "type": "integer", "nullable": true },
+          "googleSub": { "type": "string", "nullable": true },
+          "hasPassword": { "type": "boolean" }
+        }
+      },
       "User": {
         "type": "object",
         "properties": {

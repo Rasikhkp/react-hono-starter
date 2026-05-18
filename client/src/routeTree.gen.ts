@@ -14,9 +14,11 @@ import { Route as AuthLayoutRouteRouteImport } from './routes/_auth-layout/route
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as AdminIndexRouteImport } from './routes/admin/index'
 import { Route as AdminUsersRouteImport } from './routes/admin/users'
+import { Route as AdminSecurityRouteImport } from './routes/admin/security'
 import { Route as AdminPermissionsRouteImport } from './routes/admin/permissions'
 import { Route as AuthLayoutSignUpRouteImport } from './routes/_auth-layout/sign-up'
 import { Route as AuthLayoutSignInRouteImport } from './routes/_auth-layout/sign-in'
+import { Route as AuthGoogleCallbackRouteImport } from './routes/auth.google.callback'
 
 const AdminRouteRoute = AdminRouteRouteImport.update({
   id: '/admin',
@@ -42,6 +44,11 @@ const AdminUsersRoute = AdminUsersRouteImport.update({
   path: '/users',
   getParentRoute: () => AdminRouteRoute,
 } as any)
+const AdminSecurityRoute = AdminSecurityRouteImport.update({
+  id: '/security',
+  path: '/security',
+  getParentRoute: () => AdminRouteRoute,
+} as any)
 const AdminPermissionsRoute = AdminPermissionsRouteImport.update({
   id: '/permissions',
   path: '/permissions',
@@ -57,6 +64,11 @@ const AuthLayoutSignInRoute = AuthLayoutSignInRouteImport.update({
   path: '/sign-in',
   getParentRoute: () => AuthLayoutRouteRoute,
 } as any)
+const AuthGoogleCallbackRoute = AuthGoogleCallbackRouteImport.update({
+  id: '/auth/google/callback',
+  path: '/auth/google/callback',
+  getParentRoute: () => rootRouteImport,
+} as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
@@ -64,16 +76,20 @@ export interface FileRoutesByFullPath {
   '/sign-in': typeof AuthLayoutSignInRoute
   '/sign-up': typeof AuthLayoutSignUpRoute
   '/admin/permissions': typeof AdminPermissionsRoute
+  '/admin/security': typeof AdminSecurityRoute
   '/admin/users': typeof AdminUsersRoute
   '/admin/': typeof AdminIndexRoute
+  '/auth/google/callback': typeof AuthGoogleCallbackRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/sign-in': typeof AuthLayoutSignInRoute
   '/sign-up': typeof AuthLayoutSignUpRoute
   '/admin/permissions': typeof AdminPermissionsRoute
+  '/admin/security': typeof AdminSecurityRoute
   '/admin/users': typeof AdminUsersRoute
   '/admin': typeof AdminIndexRoute
+  '/auth/google/callback': typeof AuthGoogleCallbackRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -83,8 +99,10 @@ export interface FileRoutesById {
   '/_auth-layout/sign-in': typeof AuthLayoutSignInRoute
   '/_auth-layout/sign-up': typeof AuthLayoutSignUpRoute
   '/admin/permissions': typeof AdminPermissionsRoute
+  '/admin/security': typeof AdminSecurityRoute
   '/admin/users': typeof AdminUsersRoute
   '/admin/': typeof AdminIndexRoute
+  '/auth/google/callback': typeof AuthGoogleCallbackRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
@@ -94,16 +112,20 @@ export interface FileRouteTypes {
     | '/sign-in'
     | '/sign-up'
     | '/admin/permissions'
+    | '/admin/security'
     | '/admin/users'
     | '/admin/'
+    | '/auth/google/callback'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
     | '/sign-in'
     | '/sign-up'
     | '/admin/permissions'
+    | '/admin/security'
     | '/admin/users'
     | '/admin'
+    | '/auth/google/callback'
   id:
     | '__root__'
     | '/'
@@ -112,14 +134,17 @@ export interface FileRouteTypes {
     | '/_auth-layout/sign-in'
     | '/_auth-layout/sign-up'
     | '/admin/permissions'
+    | '/admin/security'
     | '/admin/users'
     | '/admin/'
+    | '/auth/google/callback'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   AuthLayoutRouteRoute: typeof AuthLayoutRouteRouteWithChildren
   AdminRouteRoute: typeof AdminRouteRouteWithChildren
+  AuthGoogleCallbackRoute: typeof AuthGoogleCallbackRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -159,6 +184,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AdminUsersRouteImport
       parentRoute: typeof AdminRouteRoute
     }
+    '/admin/security': {
+      id: '/admin/security'
+      path: '/security'
+      fullPath: '/admin/security'
+      preLoaderRoute: typeof AdminSecurityRouteImport
+      parentRoute: typeof AdminRouteRoute
+    }
     '/admin/permissions': {
       id: '/admin/permissions'
       path: '/permissions'
@@ -180,6 +212,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthLayoutSignInRouteImport
       parentRoute: typeof AuthLayoutRouteRoute
     }
+    '/auth/google/callback': {
+      id: '/auth/google/callback'
+      path: '/auth/google/callback'
+      fullPath: '/auth/google/callback'
+      preLoaderRoute: typeof AuthGoogleCallbackRouteImport
+      parentRoute: typeof rootRouteImport
+    }
   }
 }
 
@@ -199,12 +238,14 @@ const AuthLayoutRouteRouteWithChildren = AuthLayoutRouteRoute._addFileChildren(
 
 interface AdminRouteRouteChildren {
   AdminPermissionsRoute: typeof AdminPermissionsRoute
+  AdminSecurityRoute: typeof AdminSecurityRoute
   AdminUsersRoute: typeof AdminUsersRoute
   AdminIndexRoute: typeof AdminIndexRoute
 }
 
 const AdminRouteRouteChildren: AdminRouteRouteChildren = {
   AdminPermissionsRoute: AdminPermissionsRoute,
+  AdminSecurityRoute: AdminSecurityRoute,
   AdminUsersRoute: AdminUsersRoute,
   AdminIndexRoute: AdminIndexRoute,
 }
@@ -217,6 +258,7 @@ const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   AuthLayoutRouteRoute: AuthLayoutRouteRouteWithChildren,
   AdminRouteRoute: AdminRouteRouteWithChildren,
+  AuthGoogleCallbackRoute: AuthGoogleCallbackRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)

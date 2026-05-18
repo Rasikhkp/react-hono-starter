@@ -1,3 +1,4 @@
+import { GoogleOAuthProvider } from "@react-oauth/google";
 import { createFileRoute, Outlet, redirect } from "@tanstack/react-router";
 import { GalleryVerticalEnd } from "lucide-react";
 import type { User } from "@/features/user/types";
@@ -32,7 +33,9 @@ export const Route = createFileRoute("/_auth-layout")({
 });
 
 function RouteComponent() {
-  return (
+  const googleClientId = import.meta.env.VITE_GOOGLE_CLIENT_ID;
+
+  const layout = (
     <div className="relative flex min-h-svh flex-col items-center justify-center gap-6 bg-muted p-6 md:p-10 overflow-hidden">
       {/* Subtle Grid Background */}
       <div
@@ -69,4 +72,14 @@ function RouteComponent() {
       </div>
     </div>
   );
+
+  if (googleClientId) {
+    return (
+      <GoogleOAuthProvider clientId={googleClientId}>
+        {layout}
+      </GoogleOAuthProvider>
+    );
+  }
+
+  return layout;
 }

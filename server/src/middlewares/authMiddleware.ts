@@ -1,8 +1,9 @@
-import { Context, Next } from "hono";
-import { verifyAccessToken } from "../lib/jwt"; // you should have this
-import { AppError, ERROR_TYPES } from "../lib/error";
+import type { Context, Next } from "hono";
 import { getCookie } from "hono/cookie";
 import { db } from "../db/database";
+import { verifyAccessToken } from "../lib/jwt";
+import { AppError, ERROR_TYPES } from "../lib/error";
+import { authUserFields, toAuthUser } from "../lib/authUser";
 
 export const authMiddleware = async (c: Context, next: Next) => {
   const token = getCookie(c, "access_token");
@@ -18,13 +19,13 @@ export const authMiddleware = async (c: Context, next: Next) => {
   try {
     const payload = await verifyAccessToken(token);
 
-    const user = await db
+    const row = await db
       .selectFrom("users")
-      .select(["id", "name", "email", "isActive", "isEmailVerified"])
-      .where("id", "=", payload.payload.sub || '0')
+      .select(authUserFields)
+      .where("id", "=", payload.payload.sub || "0")
       .executeTakeFirst();
 
-    if (!user) {
+    if (!row) {
       throw new AppError(
         ERROR_TYPES.UNAUTHORIZED,
         "User not found",
@@ -32,10 +33,14 @@ export const authMiddleware = async (c: Context, next: Next) => {
       );
     }
 
-    c.set("user", user);
+    c.set("user", toAuthUser(row));
 
     await next();
   } catch (err) {
+    if (err instanceof AppError) {
+      throw err;
+    }
+
     throw new AppError(
       ERROR_TYPES.UNAUTHORIZED,
       "Invalid or expired access token",

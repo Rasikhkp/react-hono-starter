@@ -22,11 +22,12 @@ export interface RefreshToken {
 export interface User {
   createdAt: Generated<Date | null>;
   email: string;
+  googleSub: string | null;
   id: string;
   isActive: Generated<number | null>;
   isEmailVerified: Generated<number | null>;
   name: string;
-  password: string;
+  password: string | null;
   updatedAt: Generated<Date | null>;
 }
 

@@ -1,10 +1,7 @@
-import { v7 } from "uuid";
 import { db } from "@/db/database";
 import { AppError, ERROR_TYPES } from "@/lib/error";
 import { verifyPassword } from "@/lib/password";
-import { signAccessToken } from "@/lib/jwt";
-import { hashToken } from "@/lib/hash";
-import { add } from "date-fns";
+import { createAuthSession } from "./createAuthSession";
 
 export const login = async (input: {
   email: string;
@@ -12,15 +9,15 @@ export const login = async (input: {
 }) => {
   const user = await db
     .selectFrom("users")
-    .select(['id', 'name', 'password', 'email', 'isEmailVerified', 'isActive'])
+    .select(["id", "password"])
     .where("email", "=", input.email)
     .executeTakeFirst();
 
-  if (!user) {
+  if (!user || user.password === null) {
     throw new AppError(
       ERROR_TYPES.UNAUTHORIZED,
       "Email or password is wrong",
-      401
+      401,
     );
   }
 
@@ -30,30 +27,9 @@ export const login = async (input: {
     throw new AppError(
       ERROR_TYPES.UNAUTHORIZED,
       "Email or password is wrong",
-      401
+      401,
     );
   }
 
-  const accessToken = await signAccessToken({
-    sub: user.id,
-  });
-
-  const refreshToken = v7();
-  const tokenHash = await hashToken(refreshToken);
-
-  await db
-    .insertInto("refresh_tokens")
-    .values({
-      id: v7(),
-      userId: user.id,
-      tokenHash: tokenHash,
-      expiresAt: add(new Date(), { days: 7 }),
-    })
-    .execute();
-
-  return {
-    accessToken,
-    refreshToken,
-    user
-  };
+  return createAuthSession(user.id);
 };

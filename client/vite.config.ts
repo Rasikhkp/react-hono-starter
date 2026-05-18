@@ -8,6 +8,7 @@ import { defineConfig } from "vite";
 
 export const Env = type({
   VITE_BACKEND_URL: "string.url",
+  VITE_GOOGLE_CLIENT_ID: "string?",
 });
 
 const config = defineConfig({

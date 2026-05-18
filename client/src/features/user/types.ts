@@ -7,6 +7,8 @@ export type User = {
   email: string;
   isActive: boolean;
   isEmailVerified: boolean;
+  googleSub?: string | null;
+  hasPassword?: boolean;
 };
 
 export type CreateUser = typeof createUserSchema.infer;

@@ -16,6 +16,7 @@
     "arktype": "^2.2.0",
     "crypto": "^1.0.1",
     "date-fns": "^4.1.0",
+    "google-auth-library": "^10.6.2",
     "hono": "^4.12.14",
     "jose": "^6.2.2",
     "kysely": "^0.28.16",

@@ -1,5 +1,5 @@
 import { Link, useLocation } from "@tanstack/react-router";
-import { GalleryVerticalEnd, Home, Key, User } from "lucide-react";
+import { GalleryVerticalEnd, Home, Key, Shield, User } from "lucide-react";
 import {
   Sidebar,
   SidebarContent,
@@ -23,6 +23,11 @@ const data = [
     name: "User",
     url: "/admin/users",
     icon: User,
+  },
+  {
+    name: "Security",
+    url: "/admin/security",
+    icon: Shield,
   },
   {
     name: "Permission",
