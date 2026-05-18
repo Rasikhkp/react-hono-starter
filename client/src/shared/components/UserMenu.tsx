@@ -61,8 +61,8 @@ export function UserMenu() {
         </DropdownMenuGroup>
         <DropdownMenuSeparator />
         <DropdownMenuGroup>
-          <DropdownMenuItem onClick={() => navigate({ to: "/admin/security" })}>
-            Account security
+          <DropdownMenuItem onClick={() => navigate({ to: "/admin/profile" })}>
+            Profile
           </DropdownMenuItem>
           <DropdownMenuItem onClick={handleLogout}>Log out</DropdownMenuItem>
         </DropdownMenuGroup>

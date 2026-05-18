@@ -1,5 +1,5 @@
 import { Link, useLocation } from "@tanstack/react-router";
-import { GalleryVerticalEnd, Home, Key, Shield, User } from "lucide-react";
+import { ArrowLeft, GalleryVerticalEnd, Home, Key, User } from "lucide-react";
 import {
   Sidebar,
   SidebarContent,
@@ -13,7 +13,7 @@ import {
   useSidebar,
 } from "./ui/sidebar";
 
-const data = [
+const menuItems = [
   {
     name: "Home",
     url: "/admin",
@@ -25,11 +25,6 @@ const data = [
     icon: User,
   },
   {
-    name: "Security",
-    url: "/admin/security",
-    icon: Shield,
-  },
-  {
     name: "Permission",
     url: "/admin/permissions",
     icon: Key,
@@ -39,6 +34,7 @@ const data = [
 export function AppSidebar() {
   const { state } = useSidebar();
   const location = useLocation();
+  const isProfilePage = location.pathname.startsWith("/admin/profile");
 
   return (
     <Sidebar collapsible="icon">
@@ -62,19 +58,30 @@ export function AppSidebar() {
         <SidebarGroup>
           <SidebarGroupLabel>Menu</SidebarGroupLabel>
           <SidebarMenu className="gap-1">
-            {data.map((d) => (
-              <SidebarMenuItem key={d.name}>
-                <Link to={d.url}>
-                  <SidebarMenuButton
-                    tooltip={d.name}
-                    isActive={location.pathname === d.url}
-                  >
-                    <d.icon />
-                    {d.name}
+            {isProfilePage ? (
+              <SidebarMenuItem>
+                <Link to="/admin">
+                  <SidebarMenuButton tooltip="Back to admin" isActive={false}>
+                    <ArrowLeft />
+                    Back to admin
                   </SidebarMenuButton>
                 </Link>
               </SidebarMenuItem>
-            ))}
+            ) : (
+              menuItems.map((d) => (
+                <SidebarMenuItem key={d.name}>
+                  <Link to={d.url}>
+                    <SidebarMenuButton
+                      tooltip={d.name}
+                      isActive={location.pathname === d.url}
+                    >
+                      <d.icon />
+                      {d.name}
+                    </SidebarMenuButton>
+                  </Link>
+                </SidebarMenuItem>
+              ))
+            )}
           </SidebarMenu>
         </SidebarGroup>
       </SidebarContent>

@@ -11,6 +11,7 @@ import { userRoutes } from "./features/user/routes";
 import type { AuthUser } from "./lib/authUser";
 import { setPasswordController } from "./features/auth/controllers/setPasswordController";
 import { unlinkGoogleController } from "./features/auth/controllers/unlinkGoogleController";
+import { updateProfileController } from "./features/user/controllers/updateProfileController";
 
 type Variables = {
   user: AuthUser;
@@ -45,12 +46,9 @@ const protectedApi = new Hono<{ Variables: Variables }>();
 
 protectedApi.use("*", authMiddleware);
 
-protectedApi.get("/me", (c) => {
-  const user = c.get("user");
+protectedApi.get("/me", (c) => c.json({ data: c.get("user") }));
 
-  console.log('user in me', user)
-  return c.json({ data: user });
-});
+protectedApi.patch("/me", updateProfileController);
 
 protectedApi.post("/auth/logout", logoutController);
 protectedApi.post("/auth/set-password", setPasswordController);

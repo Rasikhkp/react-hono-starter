@@ -8,8 +8,9 @@ Vite + React + TanStack Router (file routes) + TanStack Query/Form + Jotai + ky.
 src/
   routes/               # TanStack Router file-based routes (__root.tsx, index.tsx, etc.)
     _auth-layout/       # Sign-in/up — redirects if session already valid
-    admin/              # Protected shell (sidebar); session check in route beforeLoad
-  features/<feature>/   # Domain UI: components, local schemas, feature-specific hooks
+    admin/              # Protected shell (sidebar); session check in route beforeLoad; profile: routes/admin/profile.tsx (UserMenu, not sidebar nav)
+  features/profile/     # Account settings UI (AccountProfile + cards); composed by admin/profile route
+  features/<feature>/   # Domain UI: components, schemas (e.g. auth/, user/, profile/)
   shared/
     atoms/              # Jotai atoms (e.g. authAtom)
     components/         # UI primitives & composites (buttons, dialogs, tables, …)
@@ -43,6 +44,7 @@ Use **`safeFetch`** from `@/shared/lib/safeFetch` around `api` chains when handl
 1. **`/admin`** `beforeLoad`: if `authAtom` empty, call `GET api/me` with credentials; on `UNAUTHORIZED`, `redirect` to `/sign-in` with `search.redirect` preserving return URL.
 2. **`/_auth-layout`** `beforeLoad`: opposite — if cookie session exists (`me` succeeds), redirect to `/admin`.
 3. After login/register, **`store.set(authAtom, user)`** using the jotai **`store`** from `@/shared/lib/store` so route guards see consistency.
+4. **`/admin/profile`**: account profile (name, email, passwords, Google linking) — linked from **`UserMenu`**, not the main sidebar. On that route, **`AppSidebar`** shows only **Back to admin** (`/admin`).
 
 ## Forms & validation
 

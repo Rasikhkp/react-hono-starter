@@ -1,7 +1,6 @@
-import { createFileRoute, Link } from "@tanstack/react-router";
 import { useAtom } from "jotai";
 import { useState } from "react";
-import { setPasswordSchema } from "@/features/auth/schemas/setPasswordSchema";
+import { mapAuthPayloadToUser } from "@/features/user/lib/mapAuthPayloadToUser";
 import type { User } from "@/features/user/types";
 import { authAtom } from "@/shared/atoms/authAtom";
 import {
@@ -22,60 +21,15 @@ import {
   CardHeader,
   CardTitle,
 } from "@/shared/components/ui/card";
-import { FieldGroup } from "@/shared/components/ui/field";
 import { toastManager } from "@/shared/components/ui/toast";
-import { useUpdateBreadcrumbs } from "@/shared/hooks/useUpdateBreadcrumbs";
 import { api } from "@/shared/lib/api";
-import { useAppForm } from "@/shared/lib/form";
 import { safeFetch } from "@/shared/lib/safeFetch";
 
-export const Route = createFileRoute("/admin/security")({
-  component: SecurityPage,
-});
-
-function SecurityPage() {
-  useUpdateBreadcrumbs([
-    { name: "Home", url: "/admin" },
-    { name: "Account security", url: "/admin/security" },
-  ]);
-
+export function ProfileGoogleCard() {
   const [auth, setAuth] = useAtom(authAtom);
   const [unlinkOpen, setUnlinkOpen] = useState(false);
 
-  const form = useAppForm({
-    defaultValues: {
-      password: "",
-    },
-    validators: {
-      onSubmit: setPasswordSchema,
-      onChange: setPasswordSchema,
-    },
-    onSubmit: async ({ value }) => {
-      const { data, error } = await safeFetch(
-        api
-          .post("auth/set-password", {
-            json: { password: value.password },
-            credentials: "include",
-          })
-          .json<{ data: User }>(),
-      );
-
-      if (error) {
-        toastManager.add({
-          type: "error",
-          description: error.message,
-          title: "Error occured",
-        });
-      } else {
-        setAuth(data?.data ?? null);
-        toastManager.add({
-          type: "success",
-          title: "Password saved",
-          description: "You can now sign in with email and password.",
-        });
-      }
-    },
-  });
+  const canUnlinkGoogle = Boolean(auth?.googleSub && auth?.hasPassword);
 
   const unlinkGoogle = async () => {
     const { data, error } = await safeFetch(
@@ -93,7 +47,9 @@ function SecurityPage() {
       return;
     }
 
-    setAuth(data?.data ?? null);
+    if (data?.data) {
+      setAuth(mapAuthPayloadToUser(data.data));
+    }
     setUnlinkOpen(false);
     toastManager.add({
       type: "success",
@@ -101,66 +57,8 @@ function SecurityPage() {
     });
   };
 
-  const needsPassword = auth?.hasPassword === false;
-  const canUnlinkGoogle = Boolean(auth?.googleSub && auth?.hasPassword);
-
   return (
-    <div className="max-w-lg mx-auto space-y-8">
-      {!auth?.hasPassword && auth?.googleSub ? (
-        <p className="text-sm text-muted-foreground">
-          You&apos;re signed in with Google only. Add a password below any time
-          so you can also sign in with email (
-          <Link className="underline" to="/sign-in">
-            sign-in page
-          </Link>
-          ).
-        </p>
-      ) : null}
-
-      <Card>
-        <CardHeader>
-          <CardTitle>Set password</CardTitle>
-          <CardDescription>
-            Add or enable email/password sign-in (same credentials on the{" "}
-            <Link className="underline" to="/sign-in">
-              sign-in page
-            </Link>
-            ).
-          </CardDescription>
-        </CardHeader>
-        {needsPassword ? (
-          <>
-            <CardContent>
-              <form
-                onSubmit={(e) => {
-                  e.preventDefault();
-                  form.handleSubmit();
-                }}
-              >
-                <FieldGroup>
-                  <form.AppField name="password">
-                    {(field) => <field.PasswordField label="Password" />}
-                  </form.AppField>
-                  <Button type="submit">Save password</Button>
-                </FieldGroup>
-              </form>
-            </CardContent>
-            <CardFooter>
-              <p className="text-xs text-muted-foreground">
-                Use this email ({auth?.email}) with the password you set here.
-              </p>
-            </CardFooter>
-          </>
-        ) : (
-          <CardContent>
-            <p className="text-sm text-muted-foreground">
-              A password is already set. Use the Users admin flows if you
-              support password changes there.
-            </p>
-          </CardContent>
-        )}
-      </Card>
-
+    <>
       <Card>
         <CardHeader>
           <CardTitle>Google account</CardTitle>
@@ -224,6 +122,6 @@ function SecurityPage() {
           </AlertDialogFooter>
         </AlertDialogPopup>
       </AlertDialog>
-    </div>
+    </>
   );
 }

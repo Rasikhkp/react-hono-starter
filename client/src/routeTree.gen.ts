@@ -14,7 +14,7 @@ import { Route as AuthLayoutRouteRouteImport } from './routes/_auth-layout/route
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as AdminIndexRouteImport } from './routes/admin/index'
 import { Route as AdminUsersRouteImport } from './routes/admin/users'
-import { Route as AdminSecurityRouteImport } from './routes/admin/security'
+import { Route as AdminProfileRouteImport } from './routes/admin/profile'
 import { Route as AdminPermissionsRouteImport } from './routes/admin/permissions'
 import { Route as AuthLayoutSignUpRouteImport } from './routes/_auth-layout/sign-up'
 import { Route as AuthLayoutSignInRouteImport } from './routes/_auth-layout/sign-in'
@@ -44,9 +44,9 @@ const AdminUsersRoute = AdminUsersRouteImport.update({
   path: '/users',
   getParentRoute: () => AdminRouteRoute,
 } as any)
-const AdminSecurityRoute = AdminSecurityRouteImport.update({
-  id: '/security',
-  path: '/security',
+const AdminProfileRoute = AdminProfileRouteImport.update({
+  id: '/profile',
+  path: '/profile',
   getParentRoute: () => AdminRouteRoute,
 } as any)
 const AdminPermissionsRoute = AdminPermissionsRouteImport.update({
@@ -76,7 +76,7 @@ export interface FileRoutesByFullPath {
   '/sign-in': typeof AuthLayoutSignInRoute
   '/sign-up': typeof AuthLayoutSignUpRoute
   '/admin/permissions': typeof AdminPermissionsRoute
-  '/admin/security': typeof AdminSecurityRoute
+  '/admin/profile': typeof AdminProfileRoute
   '/admin/users': typeof AdminUsersRoute
   '/admin/': typeof AdminIndexRoute
   '/auth/google/callback': typeof AuthGoogleCallbackRoute
@@ -86,7 +86,7 @@ export interface FileRoutesByTo {
   '/sign-in': typeof AuthLayoutSignInRoute
   '/sign-up': typeof AuthLayoutSignUpRoute
   '/admin/permissions': typeof AdminPermissionsRoute
-  '/admin/security': typeof AdminSecurityRoute
+  '/admin/profile': typeof AdminProfileRoute
   '/admin/users': typeof AdminUsersRoute
   '/admin': typeof AdminIndexRoute
   '/auth/google/callback': typeof AuthGoogleCallbackRoute
@@ -99,7 +99,7 @@ export interface FileRoutesById {
   '/_auth-layout/sign-in': typeof AuthLayoutSignInRoute
   '/_auth-layout/sign-up': typeof AuthLayoutSignUpRoute
   '/admin/permissions': typeof AdminPermissionsRoute
-  '/admin/security': typeof AdminSecurityRoute
+  '/admin/profile': typeof AdminProfileRoute
   '/admin/users': typeof AdminUsersRoute
   '/admin/': typeof AdminIndexRoute
   '/auth/google/callback': typeof AuthGoogleCallbackRoute
@@ -112,7 +112,7 @@ export interface FileRouteTypes {
     | '/sign-in'
     | '/sign-up'
     | '/admin/permissions'
-    | '/admin/security'
+    | '/admin/profile'
     | '/admin/users'
     | '/admin/'
     | '/auth/google/callback'
@@ -122,7 +122,7 @@ export interface FileRouteTypes {
     | '/sign-in'
     | '/sign-up'
     | '/admin/permissions'
-    | '/admin/security'
+    | '/admin/profile'
     | '/admin/users'
     | '/admin'
     | '/auth/google/callback'
@@ -134,7 +134,7 @@ export interface FileRouteTypes {
     | '/_auth-layout/sign-in'
     | '/_auth-layout/sign-up'
     | '/admin/permissions'
-    | '/admin/security'
+    | '/admin/profile'
     | '/admin/users'
     | '/admin/'
     | '/auth/google/callback'
@@ -184,11 +184,11 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AdminUsersRouteImport
       parentRoute: typeof AdminRouteRoute
     }
-    '/admin/security': {
-      id: '/admin/security'
-      path: '/security'
-      fullPath: '/admin/security'
-      preLoaderRoute: typeof AdminSecurityRouteImport
+    '/admin/profile': {
+      id: '/admin/profile'
+      path: '/profile'
+      fullPath: '/admin/profile'
+      preLoaderRoute: typeof AdminProfileRouteImport
       parentRoute: typeof AdminRouteRoute
     }
     '/admin/permissions': {
@@ -238,14 +238,14 @@ const AuthLayoutRouteRouteWithChildren = AuthLayoutRouteRoute._addFileChildren(
 
 interface AdminRouteRouteChildren {
   AdminPermissionsRoute: typeof AdminPermissionsRoute
-  AdminSecurityRoute: typeof AdminSecurityRoute
+  AdminProfileRoute: typeof AdminProfileRoute
   AdminUsersRoute: typeof AdminUsersRoute
   AdminIndexRoute: typeof AdminIndexRoute
 }
 
 const AdminRouteRouteChildren: AdminRouteRouteChildren = {
   AdminPermissionsRoute: AdminPermissionsRoute,
-  AdminSecurityRoute: AdminSecurityRoute,
+  AdminProfileRoute: AdminProfileRoute,
   AdminUsersRoute: AdminUsersRoute,
   AdminIndexRoute: AdminIndexRoute,
 }

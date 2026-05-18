@@ -37,6 +37,7 @@ Success uses `data`; errors use `error` plus appropriate HTTP status. `AppError`
 ## Authentication
 
 - **Google Sign-In**: `GOOGLE_REDIRECT_URI` in `server/.env` must be the SPA origin string that matches GIS popup behavior and **Authorized redirect URIs** in Google Cloud Console (`localhost` vs `127.0.0.1` must stay consistent). Restart the dev server after changing `server/.env`.
+- **Self-service profile**: `PATCH /api/me` updates **`name`** and **`email`** for the authenticated user only; **`oldPassword`** + **`newPassword`** together rotate the password (first password still uses `POST /api/auth/set-password`). Changing **`email`** sets **`isEmailVerified`** to **`0`** until email verification exists; duplicate emails return **`409`**.
 - **Cookies**: login/register issue `access_token` (JWT, short-lived) and `refresh_token` (opaque, hashed in DB) via `setCookie` + `cookieOptions` from `@/lib/cookie`.
 - **Protected handlers**: rely on `c.get("user")` after middleware — do not duplicate JWT parsing in controllers unless there is a special case.
 - **Logout / refresh**: follow existing `@/features/auth/controllers` patterns (cookie names: `access_token`, `refresh_token`).
