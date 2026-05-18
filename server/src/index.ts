@@ -1,8 +1,9 @@
 import { Hono } from "hono";
+import { cors } from "hono/cors";
+import { env } from "@/config/env";
 import { authRoutes } from "./features/auth/routes";
 import { AppError, ERROR_TYPES } from "./lib/error";
 import { authMiddleware } from "./middlewares/authMiddleware";
-import { cors } from "hono/cors";
 import { logoutController } from "./features/auth/controllers/logoutController";
 import { Scalar } from "@scalar/hono-api-reference";
 import openapi from "../openapi.json";
@@ -24,7 +25,7 @@ app.use(logger())
 app.use(
   '*',
   cors({
-    origin: 'http://localhost:3000',
+    origin: env.CORS_ORIGIN,
     credentials: true,
   })
 )

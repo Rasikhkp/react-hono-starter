@@ -62,3 +62,8 @@ Use **`safeFetch`** from `@/shared/lib/safeFetch` around `api` chains when handl
 
 - Biome — `pnpm check` / lint / format (see **`package.json`** scripts).
 - Devtools: TanStack Router + Query panels are wired from **`routes/__root.tsx`**.
+
+## Docker (this package)
+
+- **[compose.yml](compose.yml)** is **frontend-only** (`web`): `cp .env.docker.example .env`, set **`VITE_BACKEND_URL`** to the API URL browsers will call (often another machine or domain), then **`docker compose up --build`** from **`client/`**. Default host port **`3000`** → container **80** (override **`WEB_PUBLISH_PORT`**).
+- **[Dockerfile](Dockerfile)** bakes **`VITE_BACKEND_URL`** at build time; nginx serves **`dist/`**. The API deployment (see the backend repo’s Compose / docs) runs separately — **`CORS_ORIGIN`** and **`GOOGLE_REDIRECT_URI`** there must match this SPA’s public URL when read from the browser.

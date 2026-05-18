@@ -6,7 +6,7 @@ Bun + Hono API. Prefer matching existing feature layout and patterns below when 
 
 ```
 src/
-  index.ts              # App mount: CORS, public/protected routers, `/api` prefix
+  index.ts              # App mount: CORS (env.CORS_ORIGIN), public/protected routers, `/api` prefix
   config/env.ts         # arkenv — all required env vars (add new vars here first)
   db/
     database.ts         # Kysely instance
@@ -37,6 +37,7 @@ Success uses `data`; errors use `error` plus appropriate HTTP status. `AppError`
 ## Authentication
 
 - **Google Sign-In**: `GOOGLE_REDIRECT_URI` in `server/.env` must be the SPA origin string that matches GIS popup behavior and **Authorized redirect URIs** in Google Cloud Console (`localhost` vs `127.0.0.1` must stay consistent). Restart the dev server after changing `server/.env`.
+- **CORS**: `CORS_ORIGIN` in `server/.env` must be the exact browser origin of the SPA (scheme + host + port), e.g. `http://localhost:3000`, so credentialed cookie requests from the client are allowed. If the SPA runs on another deployment, set **`CORS_ORIGIN`** to that public origin (including with **`Docker Compose`**: **`compose.yml`** and **`.env.docker.example`** in this directory).
 - **Self-service profile**: `PATCH /api/me` updates **`name`** and **`email`** for the authenticated user only; **`oldPassword`** + **`newPassword`** together rotate the password (first password still uses `POST /api/auth/set-password`). Changing **`email`** sets **`isEmailVerified`** to **`0`** until email verification exists; duplicate emails return **`409`**.
 - **Cookies**: login/register issue `access_token` (JWT, short-lived) and `refresh_token` (opaque, hashed in DB) via `setCookie` + `cookieOptions` from `@/lib/cookie`.
 - **Protected handlers**: rely on `c.get("user")` after middleware — do not duplicate JWT parsing in controllers unless there is a special case.
@@ -77,3 +78,9 @@ Success uses `data`; errors use `error` plus appropriate HTTP status. `AppError`
 
 - `bun run dev` — hot reload
 - `migrate:*`, `db:typegen`, `db:seed` — see `package.json`
+
+## Docker (this package)
+
+- **[compose.yml](compose.yml)** (**`mysql`** + **`server`**) runs only the API stack from **`server/`**: `cp .env.docker.example .env` (same directory), then **`docker compose up --build`**. Defaults: MySQL **3306**, API **4000** (override with **`MYSQL_PUBLISH_PORT`**, **`SERVER_PUBLISH_PORT`** in **`.env`**).
+- The image (**[Dockerfile](Dockerfile)**) uses **[docker-entrypoint.sh](docker-entrypoint.sh)**: **`migrate:latest`** then **`bun ./src/index.ts`**. Inside Compose, **`DATABASE_HOST=mysql`**.
+- **`CORS_ORIGIN`** and **`GOOGLE_REDIRECT_URI`** must be the SPA’s exact public origin wherever the frontend is hosted (`client` ships its own Compose file). **`VITE_BACKEND_URL`** on the client build must point at where **this** API is reachable from the browser (possibly another hostname than `localhost`).
