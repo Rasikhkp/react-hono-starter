@@ -1,6 +1,8 @@
 {
   "name": "server",
   "scripts": {
+    "docker:up": "docker compose up --build",
+    "docker:down": "docker compose down",
     "dev": "bun run --hot src/index.ts",
     "build": "bun build src/index.ts --outdir dist --target bun",
     "migrate:latest": "bun run ./src/db/migrateToLatest.ts",

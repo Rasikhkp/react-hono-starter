@@ -6,6 +6,8 @@
     "#/*": "./src/*"
   },
   "scripts": {
+    "docker:up": "docker compose --env-file .env.docker up --build",
+    "docker:down": "docker compose --env-file .env.docker down",
     "dev": "vite dev --port 3000",
     "build": "vite build",
     "preview": "vite preview",

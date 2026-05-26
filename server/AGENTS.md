@@ -81,6 +81,6 @@ Success uses `data`; errors use `error` plus appropriate HTTP status. `AppError`
 
 ## Docker (this package)
 
-- **[compose.yml](compose.yml)** (**`mysql`** + **`server`**) runs only the API stack from **`server/`**: `cp .env.docker.example .env` (same directory), then **`docker compose up --build`**. Defaults: MySQL **3306**, API **4000** (override with **`MYSQL_PUBLISH_PORT`**, **`SERVER_PUBLISH_PORT`** in **`.env`**).
-- The image (**[Dockerfile](Dockerfile)**) uses **[docker-entrypoint.sh](docker-entrypoint.sh)**: **`migrate:latest`** then **`bun ./src/index.ts`**. Inside Compose, **`DATABASE_HOST=mysql`**.
+- **[compose.yml](compose.yml)** (**`mysql`** + **`server`**): **`env_file: .env.docker`** supplies runtime env for Docker. Copy **[.env.docker.example](.env.docker.example)** to **`.env.docker`**. **`bun run dev`** uses **`.env`** only. Host ports **`${SERVER_PUBLISH_PORT}`** in the YAML still come from **`.env`** or the shell unless you set them there too.
+- The image (**[Dockerfile](Dockerfile)**) uses **[docker-entrypoint.sh](docker-entrypoint.sh)**: **`migrate:latest`** then **`bun ./src/index.ts`** (no **`db:typegen`** in the container; run typegen locally or in CI).
 - **`CORS_ORIGIN`** and **`GOOGLE_REDIRECT_URI`** must be the SPA’s exact public origin wherever the frontend is hosted (`client` ships its own Compose file). **`VITE_BACKEND_URL`** on the client build must point at where **this** API is reachable from the browser (possibly another hostname than `localhost`).

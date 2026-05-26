@@ -1,4 +1,4 @@
-FROM oven/bun:1.3 AS builder
+FROM oven/bun:alpine AS builder
 
 WORKDIR /app
 
@@ -7,14 +7,20 @@ RUN bun install --frozen-lockfile
 
 COPY . .
 
-ARG VITE_BACKEND_URL=http://localhost:4000
+# Build-time public config only (passed from compose build.args; no defaults here)
+ARG VITE_BACKEND_URL
+ARG VITE_GOOGLE_CLIENT_ID
 ENV VITE_BACKEND_URL=${VITE_BACKEND_URL}
+ENV VITE_GOOGLE_CLIENT_ID=${VITE_GOOGLE_CLIENT_ID}
 
 RUN bun run build
 
-FROM nginx:1.27-alpine
+# Production stage
+FROM caddy:alpine
 
-COPY --from=builder /app/dist /usr/share/nginx/html
-COPY nginx/default.conf /etc/nginx/conf.d/default.conf
+COPY --from=builder /app/dist /srv
+COPY Caddyfile /etc/caddy/Caddyfile
 
 EXPOSE 80
+
+CMD ["caddy", "run", "--config", "/etc/caddy/Caddyfile", "--adapter", "caddyfile"]

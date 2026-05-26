@@ -1,11 +1,13 @@
-# Backend stack — run from this directory: docker compose up --build
-# Copy .env.docker.example to .env and set secrets.
+# Backend — docker compose up --build  (uses .env.docker via env_file on services)
+# bun run dev uses .env only — not .env.docker
 
 services:
   mysql:
     image: mysql:8.4
+    restart: unless-stopped
+    env_file:
+      - .env.docker
     environment:
-      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD:-changeme}
       MYSQL_DATABASE: react_hono_starter
       TZ: UTC
     volumes:
@@ -27,25 +29,26 @@ services:
     build:
       context: .
       dockerfile: Dockerfile
-    environment:
-      DATABASE_HOST: mysql
-      DATABASE_USER: root
-      DATABASE_PASSWORD: ${MYSQL_ROOT_PASSWORD:-changeme}
-      DATABASE_NAME: react_hono_starter
-      DATABASE_PORT: 3306
-      DATABASE_URL: mysql://root:${MYSQL_ROOT_PASSWORD:-changeme}@mysql:3306/react_hono_starter
-      JWT_SECRET: ${JWT_SECRET:-change-me-in-production}
-      ENV: ${ENV:-production}
-      # Exact browser origin of the SPA wherever it is hosted (can be another machine / domain).
-      CORS_ORIGIN: ${CORS_ORIGIN:-http://localhost:3000}
-      GOOGLE_CLIENT_ID: ${GOOGLE_CLIENT_ID:-}
-      GOOGLE_CLIENT_SECRET: ${GOOGLE_CLIENT_SECRET:-}
-      GOOGLE_REDIRECT_URI: ${GOOGLE_REDIRECT_URI:-http://localhost:3000}
+    restart: unless-stopped
+    env_file:
+      - .env.docker
     ports:
-      - "${SERVER_PUBLISH_PORT:-4000}:4000"
+      - "4010:4000"
     depends_on:
       mysql:
         condition: service_healthy
+    healthcheck:
+      test:
+        [
+          "CMD",
+          "bun",
+          "-e",
+          "fetch('http://127.0.0.1:4000/').then(r=>process.exit(r.ok?0:1)).catch(()=>process.exit(1))",
+        ]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 30s
 
 volumes:
   mysql_data:

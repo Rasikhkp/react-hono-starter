@@ -1,14 +1,22 @@
-# Frontend-only stack — run from this directory: docker compose up --build
-# The API runs elsewhere; set VITE_BACKEND_URL to the full base URL users’ browsers reach (no /api suffix).
-#
-# Copy .env.docker.example to .env and set VITE_BACKEND_URL at minimum.
+# Frontend — prefer: bun run docker:up  (loads .env.docker for ${VAR} and build.args)
+# Plain `docker compose up` only reads `.env`, not `.env.docker`.
 
 services:
   web:
+    env_file:
+      - .env.docker
     build:
       context: .
       dockerfile: Dockerfile
       args:
-        VITE_BACKEND_URL: ${VITE_BACKEND_URL:-http://localhost:4000}
+        VITE_BACKEND_URL: "http://localhost:4010"
+        VITE_GOOGLE_CLIENT_ID: ${VITE_GOOGLE_CLIENT_ID:-}
+    restart: unless-stopped
     ports:
       - "${WEB_PUBLISH_PORT:-3000}:80"
+    healthcheck:
+      test: ["CMD", "wget", "-qO-", "http://127.0.0.1/"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 10s
