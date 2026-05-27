@@ -1,5 +1,13 @@
 import { Link, useLocation } from "@tanstack/react-router";
-import { ArrowLeft, GalleryVerticalEnd, Home, Key, User } from "lucide-react";
+import {
+  ArrowLeft,
+  GalleryVerticalEnd,
+  Home,
+  Key,
+  Shield,
+  User,
+} from "lucide-react";
+import { usePermission } from "@/shared/hooks/usePermission";
 import {
   Sidebar,
   SidebarContent,
@@ -13,21 +21,30 @@ import {
   useSidebar,
 } from "./ui/sidebar";
 
-const menuItems = [
+const allMenuItems = [
   {
     name: "Home",
     url: "/admin",
     icon: Home,
+    permission: null,
   },
   {
     name: "User",
     url: "/admin/users",
     icon: User,
+    permission: "users:read",
   },
   {
-    name: "Permission",
+    name: "Roles",
+    url: "/admin/roles",
+    icon: Shield,
+    permission: "roles:read",
+  },
+  {
+    name: "Permissions",
     url: "/admin/permissions",
     icon: Key,
+    permission: "permissions:read",
   },
 ];
 
@@ -35,6 +52,12 @@ export function AppSidebar() {
   const { state } = useSidebar();
   const location = useLocation();
   const isProfilePage = location.pathname.startsWith("/admin/profile");
+  const { hasPermission } = usePermission();
+
+  const menuItems = allMenuItems.filter((item) => {
+    if (!item.permission) return true;
+    return hasPermission(item.permission);
+  });
 
   return (
     <Sidebar collapsible="icon">

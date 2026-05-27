@@ -7,12 +7,14 @@ import { CreateUserDialog } from "@/features/user/components/CreateUserDialog";
 import DeleteUserDialog from "@/features/user/components/DeleteUserDialog";
 import DeleteUsersDialog from "@/features/user/components/DeleteUsersDialog";
 import { EditUserDialog } from "@/features/user/components/EditUserDialog";
+import { UserDetailDialog } from "@/features/user/components/UserDetailDialog";
 import { filterableUserColumn } from "@/features/user/lib/filterableUserColumn";
 import { sortableUserColumn } from "@/features/user/lib/sortableUserColumn";
 import { userColumns } from "@/features/user/lib/userColumns";
 import type { User } from "@/features/user/types";
 import { DataTable } from "@/shared/components/data-table/DataTable";
 import { toastManager } from "@/shared/components/ui/toast";
+import { usePermission } from "@/shared/hooks/usePermission";
 import { useUpdateBreadcrumbs } from "@/shared/hooks/useUpdateBreadcrumbs";
 import { api } from "@/shared/lib/api";
 import { parseSafeError } from "@/shared/lib/error";
@@ -27,6 +29,7 @@ function RouteComponent() {
     { name: "User", url: "/admin/users" },
   ]);
 
+  const { hasPermission } = usePermission();
   const setDeleteManyDialogOpen = useSetAtom(deleteManyDialogOpenAtom);
   const setSelectedUsers = useSetAtom(selectedUsersAtom);
 
@@ -51,7 +54,7 @@ function RouteComponent() {
       <div className="flex justify-between items-end mb-5">
         <div className="text-3xl font-bold">User Management</div>
 
-        <CreateUserDialog />
+        {hasPermission("users:create") && <CreateUserDialog />}
       </div>
 
       <DataTable
@@ -72,6 +75,7 @@ function RouteComponent() {
       <EditUserDialog />
       <DeleteUserDialog />
       <DeleteUsersDialog />
+      <UserDetailDialog />
     </div>
   );
 }

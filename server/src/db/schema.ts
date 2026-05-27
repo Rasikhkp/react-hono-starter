@@ -9,6 +9,15 @@ export type Generated<T> = T extends ColumnType<infer S, infer I, infer U>
   ? ColumnType<S, I | undefined, U>
   : ColumnType<T, T | undefined, T>;
 
+export interface Permission {
+  createdAt: Generated<Date | null>;
+  description: string | null;
+  id: string;
+  name: string;
+  resource: string;
+  updatedAt: Generated<Date | null>;
+}
+
 export interface RefreshToken {
   createdAt: Generated<Date | null>;
   expiresAt: Date;
@@ -19,7 +28,26 @@ export interface RefreshToken {
   userId: string;
 }
 
+export interface RolePermission {
+  permissionId: string;
+  roleId: string;
+}
+
+export interface Role {
+  createdAt: Generated<Date | null>;
+  description: string | null;
+  id: string;
+  name: string;
+  updatedAt: Generated<Date | null>;
+}
+
+export interface UserRole {
+  roleId: string;
+  userId: string;
+}
+
 export interface User {
+  avatar: string | null;
   createdAt: Generated<Date | null>;
   email: string;
   googleSub: string | null;
@@ -32,6 +60,10 @@ export interface User {
 }
 
 export interface DB {
+  permissions: Permission;
   refresh_tokens: RefreshToken;
+  role_permissions: RolePermission;
+  roles: Role;
+  user_roles: UserRole;
   users: User;
 }

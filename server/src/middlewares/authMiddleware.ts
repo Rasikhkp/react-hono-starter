@@ -1,39 +1,22 @@
 import type { Context, Next } from "hono";
 import { getCookie } from "hono/cookie";
-import { db } from "../db/database";
 import { verifyAccessToken } from "../lib/jwt";
 import { AppError, ERROR_TYPES } from "../lib/error";
-import { authUserFields, toAuthUser } from "../lib/authUser";
+import { getAuthUser } from "@/features/auth/services/getAuthUser";
 
 export const authMiddleware = async (c: Context, next: Next) => {
   const token = getCookie(c, "access_token");
 
   if (!token) {
-    throw new AppError(
-      ERROR_TYPES.UNAUTHORIZED,
-      "Missing access token",
-      401
-    );
+    throw new AppError(ERROR_TYPES.UNAUTHORIZED, "Missing access token", 401);
   }
 
   try {
     const payload = await verifyAccessToken(token);
 
-    const row = await db
-      .selectFrom("users")
-      .select(authUserFields)
-      .where("id", "=", payload.payload.sub || "0")
-      .executeTakeFirst();
+    const authUser = await getAuthUser(payload.payload.sub || '0')
 
-    if (!row) {
-      throw new AppError(
-        ERROR_TYPES.UNAUTHORIZED,
-        "User not found",
-        401
-      );
-    }
-
-    c.set("user", toAuthUser(row));
+    c.set('user', authUser)
 
     await next();
   } catch (err) {
@@ -44,7 +27,7 @@ export const authMiddleware = async (c: Context, next: Next) => {
     throw new AppError(
       ERROR_TYPES.UNAUTHORIZED,
       "Invalid or expired access token",
-      401
+      401,
     );
   }
 };

@@ -37,9 +37,34 @@ export async function createAuthSession(userId: string) {
     })
     .execute();
 
+  // Fetch roles and permissions for the session user
+  const userRoles = await db
+    .selectFrom("user_roles")
+    .innerJoin("roles", "roles.id", "user_roles.roleId")
+    .select(["roles.id", "roles.name"])
+    .where("user_roles.userId", "=", row.id)
+    .execute();
+
+  const roleIds = userRoles.map((r) => r.id);
+  let userPermissions: { id: string; name: string; resource: string }[] = [];
+
+  if (roleIds.length > 0) {
+    userPermissions = await db
+      .selectFrom("role_permissions")
+      .innerJoin("permissions", "permissions.id", "role_permissions.permissionId")
+      .select(["permissions.id", "permissions.name", "permissions.resource"])
+      .where("role_permissions.roleId", "in", roleIds)
+      .groupBy(["permissions.id", "permissions.name", "permissions.resource"])
+      .execute();
+  }
+
   return {
     accessToken,
     refreshToken,
-    user: toAuthUser(row),
+    user: toAuthUser(
+      row,
+      userRoles.map((r) => ({ id: r.id, name: r.name })),
+      userPermissions.map((p) => ({ id: p.id, name: p.name, resource: p.resource })),
+    ),
   };
 }

@@ -1,19 +1,11 @@
-# Backend — docker compose up --build  (uses .env.docker via env_file on services)
-# bun run dev uses .env only — not .env.docker
-
 services:
   mysql:
     image: mysql:8.4
     restart: unless-stopped
     env_file:
       - .env.docker
-    environment:
-      MYSQL_DATABASE: react_hono_starter
-      TZ: UTC
     volumes:
       - mysql_data:/var/lib/mysql
-    ports:
-      - "${MYSQL_PUBLISH_PORT:-3306}:3306"
     healthcheck:
       test:
         [
@@ -33,7 +25,7 @@ services:
     env_file:
       - .env.docker
     ports:
-      - "4010:4000"
+      - "${SERVER_PUBLISH_PORT:-4010}:4000"
     depends_on:
       mysql:
         condition: service_healthy

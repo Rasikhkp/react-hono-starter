@@ -103,12 +103,10 @@ export const UserForm = (props: UserFormProps) => {
 
     onSubmit: ({ value }) => {
       if (isEdit) {
-        editMutation.mutate(value);
-
-        return;
+        editMutation.mutate({ id: props.user.id, ...value });
+      } else {
+        createMutation.mutate(value);
       }
-
-      createMutation.mutate(value);
     },
   });
 

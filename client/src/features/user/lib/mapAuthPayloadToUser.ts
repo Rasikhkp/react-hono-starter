@@ -8,8 +8,12 @@ export function mapAuthPayloadToUser(data: {
   isActive?: number | null | boolean;
   isEmailVerified?: number | null | boolean;
   googleSub?: string | null;
-  /** Omitted by some payloads; normalized to booleans elsewhere. */
   hasPassword?: boolean;
+  avatar?: string | null;
+  createdAt?: string | null;
+  updatedAt?: string | null;
+  roles?: { id: string; name: string }[];
+  permissions?: { id: string; name: string; resource: string }[];
 }): User {
   return {
     id: data.id,
@@ -19,5 +23,10 @@ export function mapAuthPayloadToUser(data: {
     isEmailVerified: Boolean(data.isEmailVerified),
     googleSub: data.googleSub ?? null,
     hasPassword: Boolean(data.hasPassword),
+    avatar: data.avatar ?? null,
+    createdAt: data.createdAt ?? null,
+    updatedAt: data.updatedAt ?? null,
+    roles: data.roles ?? [],
+    permissions: data.permissions ?? [],
   };
 }

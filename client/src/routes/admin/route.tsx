@@ -17,6 +17,8 @@ export const Route = createFileRoute("/admin")({
         api.get("me", { credentials: "include" }).json<{ data: User }>(),
       );
 
+      console.log("data", data);
+
       if (error && error.type === "UNAUTHORIZED") {
         throw redirect({
           to: "/sign-in",

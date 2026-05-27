@@ -15,9 +15,20 @@ import { safeFetch } from "../lib/safeFetch";
 import { Avatar, AvatarFallback, AvatarImage } from "./ui/avatar";
 import { toastManager } from "./ui/toast";
 
+function getInitials(name: string) {
+  return name
+    .split(" ")
+    .map((n) => n[0])
+    .join("")
+    .slice(0, 2)
+    .toUpperCase();
+}
+
 export function UserMenu() {
   const navigate = useNavigate();
   const [auth, setAuth] = useAtom(authAtom);
+
+  console.log("auth", auth);
 
   const handleLogout = async () => {
     const { error } = await safeFetch(
@@ -35,6 +46,13 @@ export function UserMenu() {
       navigate({ to: "/sign-in" });
     }
   };
+
+  const avatarUrl = auth?.avatar
+    ? `${import.meta.env.VITE_BACKEND_URL}${auth.avatar}`
+    : "";
+
+  console.log("avatarUrl", avatarUrl);
+
   return (
     <DropdownMenu>
       <DropdownMenuTrigger
@@ -43,11 +61,11 @@ export function UserMenu() {
           <button type="button">
             <Avatar>
               <AvatarImage
-                src="https://github.com/shadcn.png"
-                alt="@shadcn"
+                src={avatarUrl}
+                alt={auth?.name ?? "User"}
                 className="grayscale"
               />
-              <AvatarFallback>CN</AvatarFallback>
+              <AvatarFallback>{getInitials(auth?.name ?? "U")}</AvatarFallback>
             </Avatar>
           </button>
         }

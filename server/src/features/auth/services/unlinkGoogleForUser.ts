@@ -1,6 +1,6 @@
 import { db } from "@/db/database";
-import { authUserFields, toAuthUser } from "@/lib/authUser";
 import { AppError, ERROR_TYPES } from "@/lib/error";
+import { getAuthUser } from "./getAuthUser";
 
 export const unlinkGoogleForUser = async (userId: string) => {
   const row = await db
@@ -35,15 +35,5 @@ export const unlinkGoogleForUser = async (userId: string) => {
     .where("id", "=", userId)
     .execute();
 
-  const sessionRow = await db
-    .selectFrom("users")
-    .select(authUserFields)
-    .where("id", "=", userId)
-    .executeTakeFirst();
-
-  if (!sessionRow) {
-    throw new AppError(ERROR_TYPES.NOT_FOUND, "User not found", 404);
-  }
-
-  return toAuthUser(sessionRow);
+  return await getAuthUser(userId)
 };

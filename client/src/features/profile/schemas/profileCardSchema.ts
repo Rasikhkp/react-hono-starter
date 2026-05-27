@@ -7,13 +7,7 @@ export const profileCardSchema = type({
   email: type("string.email").configure({
     message: "Email must be a valid email address",
   }),
-});
-
-export const changePasswordCardSchema = type({
-  oldPassword: type("string >= 8").configure({
-    message: "Current password must be at least 8 characters",
-  }),
-  newPassword: type("string >= 8").configure({
-    message: "New password must be at least 8 characters",
-  }),
+  avatar: type("string | null"),
+  oldPassword: type("string >= 8 | ''"),
+  newPassword: type("string >= 8 | ''"),
 });

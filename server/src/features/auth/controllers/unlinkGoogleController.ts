@@ -3,7 +3,7 @@ import { unlinkGoogleForUser } from "../services/unlinkGoogleForUser";
 
 export const unlinkGoogleController = async (c: Context) => {
   const userId = c.get("user").id;
-  const user = await unlinkGoogleForUser(userId);
+  const authUser = await unlinkGoogleForUser(userId);
 
-  return c.json({ data: user });
+  return c.json({ data: authUser });
 };

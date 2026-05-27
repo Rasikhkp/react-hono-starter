@@ -7,7 +7,6 @@ RUN bun install --frozen-lockfile
 
 COPY . .
 
-# Build-time public config only (passed from compose build.args; no defaults here)
 ARG VITE_BACKEND_URL
 ARG VITE_GOOGLE_CLIENT_ID
 ENV VITE_BACKEND_URL=${VITE_BACKEND_URL}

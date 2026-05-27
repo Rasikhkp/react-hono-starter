@@ -9,10 +9,12 @@ import { Scalar } from "@scalar/hono-api-reference";
 import openapi from "../openapi.json";
 import { logger } from "hono/logger";
 import { userRoutes } from "./features/user/routes";
+import { roleRoutes } from "./features/role/routes";
+import { permissionRoutes } from "./features/permission/routes";
 import type { AuthUser } from "./lib/authUser";
-import { setPasswordController } from "./features/auth/controllers/setPasswordController";
 import { unlinkGoogleController } from "./features/auth/controllers/unlinkGoogleController";
 import { updateProfileController } from "./features/user/controllers/updateProfileController";
+import { serveStatic } from "hono/bun";
 
 type Variables = {
   user: AuthUser;
@@ -30,6 +32,16 @@ app.use(
   })
 )
 
+app.use(
+  "/uploads/*",
+  serveStatic({
+    root: "./uploads",
+    rewriteRequestPath: (path) => {
+      return path.replace("/uploads", "");
+    },
+  })
+);
+
 //-------------------------------
 // Public API
 //-------------------------------
@@ -37,8 +49,8 @@ const publicApi = new Hono<{ Variables: Variables }>();
 
 publicApi.route("/auth", authRoutes);
 
-app.get('/scalar', Scalar({ url: '/doc' }))
-app.get('/doc', (c) => c.json(openapi))
+app.get("/docs", Scalar({ url: "/openapi.json" }));
+app.get("/openapi.json", (c) => c.json(openapi));
 
 //-------------------------------
 // Protected API
@@ -52,9 +64,10 @@ protectedApi.get("/me", (c) => c.json({ data: c.get("user") }));
 protectedApi.patch("/me", updateProfileController);
 
 protectedApi.post("/auth/logout", logoutController);
-protectedApi.post("/auth/set-password", setPasswordController);
 protectedApi.post("/auth/unlink-google", unlinkGoogleController);
 protectedApi.route("/", userRoutes);
+protectedApi.route("/", roleRoutes);
+protectedApi.route("/", permissionRoutes);
 
 //-------------------------------
 // Root routes

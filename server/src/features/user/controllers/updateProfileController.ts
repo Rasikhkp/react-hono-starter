@@ -13,6 +13,7 @@ export const updateProfileController = async (c: Context) => {
     email: validated.email,
     oldPassword: validated.oldPassword,
     newPassword: validated.newPassword,
+    avatar: validated.avatar,
   });
 
   return c.json({ data: updated });
