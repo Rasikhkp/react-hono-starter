@@ -39,7 +39,7 @@ export function DiagonalWave({ glow = false, tone = "dark" } = {}) {
           <div
             key={i}
             className="dot"
-            style={{ "--d": Math.floor(i / 3) + (i % 3) }}
+            style={{ "--d": Math.floor(i / 3) + (i % 3) } as React.CSSProperties}
           />
         ))}
       </div>

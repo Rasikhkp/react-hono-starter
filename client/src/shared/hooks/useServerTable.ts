@@ -1,5 +1,6 @@
 import { getCoreRowModel, useReactTable } from "@tanstack/react-table";
 import { useState } from "react";
+import { fuzzyFilter } from "../lib/fuzzyFilter";
 import type { UseServerTableOptions } from "../types/dataTable";
 
 export function useServerTable<TData>({
@@ -27,6 +28,9 @@ export function useServerTable<TData>({
     manualSorting: true,
     manualFiltering: true,
     getCoreRowModel: getCoreRowModel(),
+    filterFns: {
+      fuzzy: fuzzyFilter,
+    },
     onPaginationChange: (updater) => {
       onPaginationChange(updater);
     },
