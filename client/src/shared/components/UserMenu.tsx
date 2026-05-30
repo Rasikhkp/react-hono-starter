@@ -60,11 +60,7 @@ export function UserMenu() {
         render={
           <button type="button">
             <Avatar>
-              <AvatarImage
-                src={avatarUrl}
-                alt={auth?.name ?? "User"}
-                className="grayscale"
-              />
+              <AvatarImage src={avatarUrl} alt={auth?.name ?? "User"} />
               <AvatarFallback>{getInitials(auth?.name ?? "U")}</AvatarFallback>
             </Avatar>
           </button>

@@ -17,6 +17,7 @@ import { Route as AdminUsersRouteImport } from './routes/admin/users'
 import { Route as AdminRolesRouteImport } from './routes/admin/roles'
 import { Route as AdminProfileRouteImport } from './routes/admin/profile'
 import { Route as AdminPermissionsRouteImport } from './routes/admin/permissions'
+import { Route as AdminDemoServerTableRouteImport } from './routes/admin/demo-server-table'
 import { Route as AuthLayoutSignUpRouteImport } from './routes/_auth-layout/sign-up'
 import { Route as AuthLayoutSignInRouteImport } from './routes/_auth-layout/sign-in'
 import { Route as AuthGoogleCallbackRouteImport } from './routes/auth.google.callback'
@@ -60,6 +61,11 @@ const AdminPermissionsRoute = AdminPermissionsRouteImport.update({
   path: '/permissions',
   getParentRoute: () => AdminRouteRoute,
 } as any)
+const AdminDemoServerTableRoute = AdminDemoServerTableRouteImport.update({
+  id: '/demo-server-table',
+  path: '/demo-server-table',
+  getParentRoute: () => AdminRouteRoute,
+} as any)
 const AuthLayoutSignUpRoute = AuthLayoutSignUpRouteImport.update({
   id: '/sign-up',
   path: '/sign-up',
@@ -81,6 +87,7 @@ export interface FileRoutesByFullPath {
   '/admin': typeof AdminRouteRouteWithChildren
   '/sign-in': typeof AuthLayoutSignInRoute
   '/sign-up': typeof AuthLayoutSignUpRoute
+  '/admin/demo-server-table': typeof AdminDemoServerTableRoute
   '/admin/permissions': typeof AdminPermissionsRoute
   '/admin/profile': typeof AdminProfileRoute
   '/admin/roles': typeof AdminRolesRoute
@@ -92,6 +99,7 @@ export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/sign-in': typeof AuthLayoutSignInRoute
   '/sign-up': typeof AuthLayoutSignUpRoute
+  '/admin/demo-server-table': typeof AdminDemoServerTableRoute
   '/admin/permissions': typeof AdminPermissionsRoute
   '/admin/profile': typeof AdminProfileRoute
   '/admin/roles': typeof AdminRolesRoute
@@ -106,6 +114,7 @@ export interface FileRoutesById {
   '/admin': typeof AdminRouteRouteWithChildren
   '/_auth-layout/sign-in': typeof AuthLayoutSignInRoute
   '/_auth-layout/sign-up': typeof AuthLayoutSignUpRoute
+  '/admin/demo-server-table': typeof AdminDemoServerTableRoute
   '/admin/permissions': typeof AdminPermissionsRoute
   '/admin/profile': typeof AdminProfileRoute
   '/admin/roles': typeof AdminRolesRoute
@@ -120,6 +129,7 @@ export interface FileRouteTypes {
     | '/admin'
     | '/sign-in'
     | '/sign-up'
+    | '/admin/demo-server-table'
     | '/admin/permissions'
     | '/admin/profile'
     | '/admin/roles'
@@ -131,6 +141,7 @@ export interface FileRouteTypes {
     | '/'
     | '/sign-in'
     | '/sign-up'
+    | '/admin/demo-server-table'
     | '/admin/permissions'
     | '/admin/profile'
     | '/admin/roles'
@@ -144,6 +155,7 @@ export interface FileRouteTypes {
     | '/admin'
     | '/_auth-layout/sign-in'
     | '/_auth-layout/sign-up'
+    | '/admin/demo-server-table'
     | '/admin/permissions'
     | '/admin/profile'
     | '/admin/roles'
@@ -217,6 +229,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AdminPermissionsRouteImport
       parentRoute: typeof AdminRouteRoute
     }
+    '/admin/demo-server-table': {
+      id: '/admin/demo-server-table'
+      path: '/demo-server-table'
+      fullPath: '/admin/demo-server-table'
+      preLoaderRoute: typeof AdminDemoServerTableRouteImport
+      parentRoute: typeof AdminRouteRoute
+    }
     '/_auth-layout/sign-up': {
       id: '/_auth-layout/sign-up'
       path: '/sign-up'
@@ -256,6 +275,7 @@ const AuthLayoutRouteRouteWithChildren = AuthLayoutRouteRoute._addFileChildren(
 )
 
 interface AdminRouteRouteChildren {
+  AdminDemoServerTableRoute: typeof AdminDemoServerTableRoute
   AdminPermissionsRoute: typeof AdminPermissionsRoute
   AdminProfileRoute: typeof AdminProfileRoute
   AdminRolesRoute: typeof AdminRolesRoute
@@ -264,6 +284,7 @@ interface AdminRouteRouteChildren {
 }
 
 const AdminRouteRouteChildren: AdminRouteRouteChildren = {
+  AdminDemoServerTableRoute: AdminDemoServerTableRoute,
   AdminPermissionsRoute: AdminPermissionsRoute,
   AdminProfileRoute: AdminProfileRoute,
   AdminRolesRoute: AdminRolesRoute,

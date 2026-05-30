@@ -110,6 +110,127 @@ Use **`safeFetch`** from `@/shared/lib/safeFetch` around `api` chains when handl
 
 - Use **`useAppForm`** from `@/shared/lib/form` with **TanStack Form** validators.
 - Mirror server rules with **arktype** schemas colocated near the feature (`features/auth/schemas`, etc.) — keep naming aligned with backend schemas where possible.
+- Available field components registered in `@/shared/lib/form`: `TextField`, `PasswordField`, `CheckboxField`, `ImageUploadField`, `SelectField`.
+- `SelectField` is a multi-select using `@base-ui/react/select` with `multiple` prop. Usage:
+  ```tsx
+  <form.AppField name="roleIds">
+    {(field) => (
+      <field.SelectField
+        label="Roles"
+        options={roleOptions}          // { label: string; value: string }[]
+        placeholder="Select roles..."
+      />
+    )}
+  </form.AppField>
+  ```
+- To add a new field component: create it in `shared/components/form/` following the `TextField` pattern (uses `useFieldContext`), then register it in `shared/lib/form.ts` under `fieldComponents`.
+
+## Data tables
+
+Two modes available: **client-side** (default) and **server-side** (opt-in via `ServerDataTable`).
+
+### Client-side (`DataTable`)
+
+- Use `DataTable` from `@/shared/components/data-table/DataTable`.
+- State (sorting, filtering, pagination, search) is managed locally via `useDataTable` hook.
+- All data is fetched upfront as a single array.
+- Supports: column-click sorting (asc/desc toggle), sort dropdown presets, filter dialog (select/checkbox/radio), debounced search, bulk delete, export, top & bottom pagination, skeleton loading.
+
+```tsx
+import { DataTable } from "@/shared/components/data-table/DataTable";
+
+<DataTable
+  data={data}
+  columns={columns}
+  isLoading={isLoading}
+  isError={isError}
+  sortableColumns={sortableColumns}   // optional
+  filterableColumns={filterableColumns} // optional
+  defaultSort={[{ id: "createdAt", desc: true }]}
+  onDeleteMany={...}  // optional
+/>
+```
+
+### Server-side (`ServerDataTable`)
+
+- State lives in **URL search params** (source of truth).
+- Use `ServerDataTable` from `@/shared/components/data-table/ServerDataTable`.
+- Use `useServerTable` hook (used internally by `ServerDataTable`).
+- Requires `manualPagination`, `manualSorting`, `manualFiltering` on the server.
+- Route pattern:
+  ```tsx
+  const Route = createFileRoute("/admin/my-feature")({
+    validateSearch: (input): MySearch => ({
+      page: Number(input.page) || 1,
+      pageSize: Number(input.pageSize) || 10,
+      sort: input.sort as string | undefined,
+      order: input.order as "asc" | "desc" | undefined,
+      search: input.search as string | undefined,
+      // feature-specific filter keys...
+    }),
+    component: RouteComponent,
+  });
+
+  function RouteComponent() {
+    const search = Route.useSearch();
+    const navigate = Route.useNavigate();
+
+    const query = useQuery({
+      queryKey: ["my-feature", search],
+      queryFn: () => api.get("my-feature", { searchParams: search }).json<PaginatedResponse<MyType>>(),
+    });
+
+    const columnFilters: ColumnFiltersState = [];
+    // build from search params...
+
+    return (
+      <ServerDataTable
+        data={result?.data ?? []}
+        pageCount={result?.pagination.totalPages ?? 0}
+        totalRowCount={result?.pagination.total ?? 0}
+        columns={columns}
+        isLoading={query.isLoading}
+        isError={query.isError}
+        state={{
+          pagination: { pageIndex: search.page - 1, pageSize: search.pageSize },
+          sorting: search.sort ? [{ id: search.sort, desc: search.order === "desc" }] : [],
+          globalFilter: search.search ?? "",
+          columnFilters,
+        }}
+        onPaginationChange={(updater) => {
+          const next = typeof updater === "function" ? updater(...) : updater;
+          navigate({ search: { ...search, page: next.pageIndex + 1, pageSize: next.pageSize } });
+        }}
+        onSortingChange={(updater) => {
+          const next = typeof updater === "function" ? updater(...) : updater;
+          navigate({ search: { ...search, sort: next[0]?.id, order: next[0]?.desc ? "desc" : "asc", page: 1 } });
+        }}
+        onGlobalFilterChange={(updater) => {
+          const next = typeof updater === "function" ? updater(search.search ?? "") : updater;
+          navigate({ search: { ...search, search: next || undefined, page: 1 } });
+        }}
+        onColumnFiltersChange={(updater) => { /* convert ColumnFiltersState → URL params */ }}
+        sortableColumns={...}
+        filterableColumns={...}
+      />
+    );
+  }
+  ```
+- Server returns `PaginatedResponse<T>`: `{ data: T[], pagination: { page, pageSize, total, totalPages } }`.
+- Use `buildListQuery` from `server/src/lib/listQuery.ts` on the server for paginated queries.
+- See `routes/admin/demo-server-table.tsx` for a complete working example with mock data.
+
+### Column definitions
+
+- Columns use `ColumnDef<T>` from `@tanstack/react-table`.
+- Enable sorting with `enableSorting: true`. Disable with `enableSorting: false`.
+- Custom filter functions can be defined via `filterFn` (built-in: `"fuzzy"` for fuzzy text search).
+- See `features/user/lib/userColumns.tsx` for an example.
+
+### Filterable & sortable columns
+
+- `sortableColumns: SortableColumn[]` — predefined sort presets shown in a dropdown.
+- `filterableColumns: FilterableColumn[]` — column filters shown in the filter dialog. Supports `"select"`, `"checkbox"`, `"radio"` types, with `multiple: true/false`.
 
 ## New feature checklist
 

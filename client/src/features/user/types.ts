@@ -30,6 +30,7 @@ export type CreateUser = {
   password: string;
   isActive: boolean;
   isEmailVerified: boolean;
+  roleIds: string[];
 };
 
 export type EditUser = {
@@ -40,4 +41,5 @@ export type EditUser = {
   newPassword?: string;
   isActive: boolean;
   isEmailVerified: boolean;
+  roleIds: string[];
 };

@@ -11,5 +11,6 @@ export const createUserSchema = type({
     message: "Password must be at least 8 characters",
   }),
   isActive: type("boolean"),
-  isEmailVerified: type("boolean")
+  isEmailVerified: type("boolean"),
+  "roleIds?": "string[]",
 });

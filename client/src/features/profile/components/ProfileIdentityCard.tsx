@@ -1,15 +1,9 @@
-import { useMutation } from "@tanstack/react-query";
 import { useAtom } from "jotai";
-import { useEffect, useRef } from "react";
+import { useEffect } from "react";
 import { profileCardSchema } from "@/features/profile/schemas/profileCardSchema";
 import { mapAuthPayloadToUser } from "@/features/user/lib/mapAuthPayloadToUser";
 import type { User } from "@/features/user/types";
 import { authAtom } from "@/shared/atoms/authAtom";
-import {
-  Avatar,
-  AvatarFallback,
-  AvatarImage,
-} from "@/shared/components/ui/avatar";
 import { Badge } from "@/shared/components/ui/badge";
 import { Button } from "@/shared/components/ui/button";
 import {
@@ -25,49 +19,14 @@ import { api } from "@/shared/lib/api";
 import { useAppForm } from "@/shared/lib/form";
 import { safeFetch } from "@/shared/lib/safeFetch";
 
-function getInitials(name: string) {
-  return name
-    .split(" ")
-    .map((n) => n[0])
-    .join("")
-    .slice(0, 2)
-    .toUpperCase();
-}
-
 export function ProfileIdentityCard() {
   const [auth, setAuth] = useAtom(authAtom);
-  const fileInputRef = useRef<HTMLInputElement>(null);
-
-  const uploadMutation = useMutation({
-    mutationFn: async (file: File) => {
-      const formData = new FormData();
-      formData.append("avatar", file);
-      const res = await api
-        .post("upload/avatar", {
-          credentials: "include",
-          body: formData,
-        })
-        .json<{
-          data: { url: string } | null;
-          error: { message: string } | null;
-        }>();
-      if (res.error) throw new Error(res.error.message);
-      return res.data?.url ?? "";
-    },
-    onError: (error) => {
-      toastManager.add({
-        type: "error",
-        title: "Upload failed",
-        description: error instanceof Error ? error.message : "Unknown error",
-      });
-    },
-  });
 
   const profileForm = useAppForm({
     defaultValues: {
       name: auth?.name ?? "",
       email: auth?.email ?? "",
-      avatar: auth?.avatar ?? "",
+      avatar: auth?.avatar ?? null,
       oldPassword: "",
       newPassword: "",
     },
@@ -118,16 +77,25 @@ export function ProfileIdentityCard() {
         return;
       }
 
+      const formData = new FormData();
+      formData.append("name", value.name);
+      formData.append("email", value.email);
+
+      const avatar = value.avatar as unknown;
+      if (avatar instanceof File) {
+        formData.append("avatar", avatar);
+      } else if (avatar === null) {
+        formData.append("avatar", "");
+      }
+      // If avatar is a string (existing path), don't append — server leaves it untouched
+
+      if (oldPw) formData.append("oldPassword", oldPw);
+      if (newPw) formData.append("newPassword", newPw);
+
       const { data, error } = await safeFetch(
         api
           .patch("me", {
-            json: {
-              name: value.name,
-              email: value.email,
-              avatar: value.avatar || null,
-              oldPassword: oldPw || undefined,
-              newPassword: newPw || undefined,
-            },
+            body: formData,
             credentials: "include",
           })
           .json<{ data: User }>(),
@@ -162,21 +130,13 @@ export function ProfileIdentityCard() {
       profileForm.reset({
         name: auth.name,
         email: auth.email,
-        avatar: auth.avatar ?? "",
+        avatar: auth.avatar ?? null,
         oldPassword: "",
         newPassword: "",
       });
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [auth?.id, auth?.name, auth?.email, auth?.avatar]);
-
-  const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    if (!file) return;
-
-    const url = await uploadMutation.mutateAsync(file);
-    profileForm.setFieldValue("avatar", url);
-  };
 
   return (
     <Card>
@@ -195,35 +155,9 @@ export function ProfileIdentityCard() {
         >
           <FieldGroup>
             {/* Avatar */}
-            <div className="flex items-center gap-4">
-              <Avatar size="lg">
-                <AvatarImage
-                  src={profileForm.getFieldValue("avatar") ?? undefined}
-                  alt={auth?.name ?? "User"}
-                />
-                <AvatarFallback>
-                  {getInitials(auth?.name ?? "U")}
-                </AvatarFallback>
-              </Avatar>
-              <div>
-                <Button
-                  type="button"
-                  variant="outline"
-                  size="sm"
-                  onClick={() => fileInputRef.current?.click()}
-                  loading={uploadMutation.isPending}
-                >
-                  Change Avatar
-                </Button>
-                <input
-                  ref={fileInputRef}
-                  type="file"
-                  accept="image/*"
-                  className="hidden"
-                  onChange={handleFileChange}
-                />
-              </div>
-            </div>
+            <profileForm.AppField name="avatar">
+              {(field) => <field.ImageUploadField label="Avatar" />}
+            </profileForm.AppField>
 
             {/* Roles */}
             {auth && auth.roles.length > 0 && (

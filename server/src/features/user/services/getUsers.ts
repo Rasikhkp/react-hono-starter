@@ -12,11 +12,11 @@ export const getUsers = async () => {
   const userRoles =
     userIds.length > 0
       ? await db
-          .selectFrom("user_roles")
-          .innerJoin("roles", "roles.id", "user_roles.roleId")
-          .select(["user_roles.userId", "roles.id as roleId", "roles.name as roleName"])
-          .where("user_roles.userId", "in", userIds)
-          .execute()
+        .selectFrom("user_roles")
+        .innerJoin("roles", "roles.id", "user_roles.roleId")
+        .select(["user_roles.userId", "roles.id as roleId", "roles.name as roleName"])
+        .where("user_roles.userId", "in", userIds)
+        .execute()
       : [];
 
   const rolesByUserId = new Map<string, { id: string; name: string }[]>();

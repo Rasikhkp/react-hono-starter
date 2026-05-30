@@ -40,7 +40,9 @@ export function DataTableFooter<TData>({ table }: Props<TData>) {
             }))}
             onValueChange={(value) => {
               table.setPageSize(value as number);
-              table.setPageIndex(0);
+              if (!table.options.manualPagination) {
+                table.setPageIndex(0);
+              }
             }}
             value={pageSize}
           >

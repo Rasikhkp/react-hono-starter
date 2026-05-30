@@ -1,6 +1,6 @@
 import { flexRender, type Row } from "@tanstack/react-table";
+import { Skeleton } from "@/shared/components/ui/skeleton";
 import { TableBody, TableCell, TableRow } from "@/shared/components/ui/table";
-import { DiagonalWave } from "../loading/DiagonalWave";
 
 type Props<TData> = {
   rows: Row<TData>[];
@@ -9,20 +9,34 @@ type Props<TData> = {
   isError: boolean;
 };
 
+const SKELETON_ROW_COUNT = 8;
+
+function getSkeletonWidth(cellIndex: number): string {
+  const widths = ["30%", "50%", "20%", "40%", "25%", "35%", "15%", "45%"];
+  return widths[cellIndex % widths.length];
+}
+
 export function DataTableBody<TData>({
   rows,
   columnCount,
   isError,
   isLoading,
 }: Props<TData>) {
-  if (!rows.length && !isError && !isLoading) {
+  if (isLoading) {
     return (
       <TableBody>
-        <TableRow>
-          <TableCell className="h-24 text-center" colSpan={columnCount}>
-            No results.
-          </TableCell>
-        </TableRow>
+        {Array.from({ length: SKELETON_ROW_COUNT }).map((_, rowIdx) => (
+          <TableRow key={`skeleton-${rowIdx}`}>
+            {Array.from({ length: columnCount }).map((_, cellIdx) => (
+              <TableCell key={`skeleton-cell-${cellIdx}`}>
+                <Skeleton
+                  className="h-4"
+                  style={{ width: getSkeletonWidth(cellIdx) }}
+                />
+              </TableCell>
+            ))}
+          </TableRow>
+        ))}
       </TableBody>
     );
   }
@@ -32,22 +46,19 @@ export function DataTableBody<TData>({
       <TableBody>
         <TableRow>
           <TableCell className="h-24 text-center" colSpan={columnCount}>
-            No results. Error happened.
+            An error occurred while loading data.
           </TableCell>
         </TableRow>
       </TableBody>
     );
   }
 
-  if (isLoading) {
+  if (!rows.length) {
     return (
       <TableBody>
         <TableRow>
           <TableCell className="h-24 text-center" colSpan={columnCount}>
-            <div className="flex justify-center mb-4">
-              <DiagonalWave />
-            </div>
-            Loading your data...
+            No results.
           </TableCell>
         </TableRow>
       </TableBody>

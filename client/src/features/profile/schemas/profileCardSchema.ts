@@ -7,7 +7,6 @@ export const profileCardSchema = type({
   email: type("string.email").configure({
     message: "Email must be a valid email address",
   }),
-  avatar: type("string | null"),
   oldPassword: type("string >= 8 | ''"),
   newPassword: type("string >= 8 | ''"),
 });

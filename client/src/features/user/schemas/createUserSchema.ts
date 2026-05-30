@@ -12,4 +12,5 @@ export const createUserSchema = type({
   }),
   isActive: type("boolean"),
   isEmailVerified: type("boolean"),
+  "roleIds?": "string[]",
 });

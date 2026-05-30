@@ -1,9 +1,11 @@
 import { useQuery } from "@tanstack/react-query";
 import { createFileRoute } from "@tanstack/react-router";
+import { useEffect, useMemo, useState } from "react";
 import { CreatePermissionDialog } from "@/features/permission/components/CreatePermissionDialog";
 import { DeletePermissionDialog } from "@/features/permission/components/DeletePermissionDialog";
 import { EditPermissionDialog } from "@/features/permission/components/EditPermissionDialog";
-import { PermissionCard } from "@/features/permission/components/PermissionCard";
+import { ResourcePermissionsPanel } from "@/features/permission/components/ResourcePermissionsPanel";
+import { ResourceSidebar } from "@/features/permission/components/ResourceSidebar";
 import type { Permission } from "@/features/permission/types";
 import { toastManager } from "@/shared/components/ui/toast";
 import { usePermission } from "@/shared/hooks/usePermission";
@@ -41,6 +43,23 @@ function RouteComponent() {
 
   const permissions = query.data?.data ?? [];
 
+  const resources = useMemo(
+    () => [...new Set(permissions.map((p) => p.resource))].sort(),
+    [permissions],
+  );
+
+  const [selectedResource, setSelectedResource] = useState(resources[0] ?? "");
+
+  const filteredPermissions = permissions.filter(
+    (p) => p.resource === selectedResource,
+  );
+
+  useEffect(() => {
+    if (resources.length) {
+      setSelectedResource(resources[0]);
+    }
+  }, [resources]);
+
   return (
     <div className="max-w-7xl mx-auto">
       <div className="flex justify-between items-end mb-5">
@@ -53,15 +72,18 @@ function RouteComponent() {
       ) : permissions.length === 0 ? (
         <div className="text-muted-foreground">No permissions found.</div>
       ) : (
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-          {permissions.map((permission) => (
-            <PermissionCard
-              key={permission.id}
-              permission={permission}
-              canEdit={hasPermission("permissions:update")}
-              canDelete={hasPermission("permissions:delete")}
-            />
-          ))}
+        <div className="flex flex-col gap-6 md:flex-row">
+          <ResourceSidebar
+            resources={resources}
+            selectedResource={selectedResource}
+            onSelect={setSelectedResource}
+          />
+          <ResourcePermissionsPanel
+            resource={selectedResource}
+            permissions={filteredPermissions}
+            canEdit={hasPermission("permissions:update")}
+            canDelete={hasPermission("permissions:delete")}
+          />
         </div>
       )}
 

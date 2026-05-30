@@ -19,7 +19,7 @@ export function CreateRoleDialog() {
   return (
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger render={<Button />}>Create Role</DialogTrigger>
-      <DialogPopup className="sm:max-w-lg">
+      <DialogPopup className="sm:max-w-xl">
         <DialogHeader>
           <DialogTitle>Create Role</DialogTitle>
           <DialogDescription>

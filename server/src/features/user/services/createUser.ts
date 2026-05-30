@@ -8,7 +8,8 @@ type CreateUser = {
   email: string;
   password: string;
   isActive?: boolean;
-  isEmailVerified?: boolean
+  isEmailVerified?: boolean;
+  roleIds?: string[];
 }
 
 export const createUser = async (input: CreateUser) => {
@@ -37,5 +38,15 @@ export const createUser = async (input: CreateUser) => {
       )
     }
     throw err
+  }
+
+  if (input.roleIds && input.roleIds.length > 0) {
+    await db
+      .insertInto('user_roles')
+      .values(input.roleIds.map(roleId => ({
+        userId: newUserId,
+        roleId,
+      })))
+      .execute()
   }
 }

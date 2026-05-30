@@ -68,7 +68,7 @@ export function RoleCard({ role, canEdit, canDelete }: RoleCardProps) {
                   </MenuItem>
                 )}
                 {canDelete && (
-                  <MenuItem variant="destructive" onClick={handleDelete}>
+                  <MenuItem onClick={handleDelete}>
                     <Trash2 className="size-4" />
                     Delete
                   </MenuItem>

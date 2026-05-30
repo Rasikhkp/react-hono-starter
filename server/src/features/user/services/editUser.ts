@@ -9,7 +9,8 @@ type EditUser = {
   oldPassword?: string;
   newPassword?: string;
   isActive: boolean;
-  isEmailVerified: boolean
+  isEmailVerified: boolean;
+  roleIds?: string[];
 }
 
 export const editUser = async (input: EditUser) => {
@@ -60,4 +61,21 @@ export const editUser = async (input: EditUser) => {
     .set(updatedUserData)
     .where('id', '=', user.id)
     .execute()
+
+  if (input.roleIds !== undefined) {
+    await db
+      .deleteFrom('user_roles')
+      .where('userId', '=', user.id)
+      .execute()
+
+    if (input.roleIds.length > 0) {
+      await db
+        .insertInto('user_roles')
+        .values(input.roleIds.map(roleId => ({
+          userId: user.id,
+          roleId,
+        })))
+        .execute()
+    }
+  }
 }

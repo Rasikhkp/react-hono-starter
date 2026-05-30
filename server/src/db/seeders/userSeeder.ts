@@ -15,74 +15,45 @@ const usersData = [
   { name: "Jack Ryan", email: "jack@example.com", isActive: false, isEmailVerified: false },
   { name: "Karen Page", email: "karen@example.com", isActive: true, isEmailVerified: true },
   { name: "Liam Neeson", email: "liam@example.com", isActive: true, isEmailVerified: true },
+  { name: "Administrator", email: "admin@example.com", isActive: true, isEmailVerified: true },
 ];
 
 export const userSeeder = async (roleIds: string[]) => {
   console.log("Seeding users...");
 
-  const existingUsers = await db
-    .selectFrom("users")
-    .select(["id", "email", "avatar"])
-    .execute();
-
-  // Backfill avatars for existing users
-  const usersWithoutAvatar = existingUsers.filter((u) => !u.avatar);
-  if (usersWithoutAvatar.length > 0) {
-    console.log(`Backfilling ${usersWithoutAvatar.length} avatars...`);
-    for (const user of usersWithoutAvatar) {
-      const seedUser = usersData.find((u) => u.email === user.email);
-      const name = seedUser?.name ?? user.email.split("@")[0];
-      await db
-        .updateTable("users")
-        .set({
-          avatar: `https://api.dicebear.com/7.x/initials/svg?seed=${encodeURIComponent(name)}`,
-        })
-        .where("id", "=", user.id)
-        .execute();
-    }
-  }
-
-  if (existingUsers.length >= 10) {
-    console.log("Users already seeded, skipping inserts...");
-    return;
-  }
-
+  const superAdminRoleId = roleIds[0];
   const password = await hashPassword("password123");
+  let createdCount = 0;
 
-  const userIds = usersData.map(() => v7());
+  for (const userData of usersData) {
+    const existing = await db
+      .selectFrom("users")
+      .select("id")
+      .where("email", "=", userData.email)
+      .executeTakeFirst();
 
-  await db
-    .insertInto("users")
-    .values(
-      usersData.map((u, i) => ({
-        id: userIds[i],
-        name: u.name,
-        email: u.email,
+    if (existing) {
+      console.log(`User ${userData.email} already exists, skipping...`);
+      continue;
+    }
+
+    const userId = v7();
+    await db
+      .insertInto("users")
+      .values({
+        id: userId,
+        name: userData.name,
+        email: userData.email,
         password,
-        isActive: u.isActive ? 1 : 0,
-        isEmailVerified: u.isEmailVerified ? 1 : 0,
-        avatar: `https://api.dicebear.com/7.x/initials/svg?seed=${encodeURIComponent(u.name)}`,
-      })),
-    )
-    .execute();
+        isActive: userData.isActive ? 1 : 0,
+        isEmailVerified: userData.isEmailVerified ? 1 : 0,
+      })
+      .execute();
 
-  // Assign roles to users
-  const userRoles: { userId: string; roleId: string }[] = [];
+    await db.insertInto("user_roles").values({ userId, roleId: superAdminRoleId }).execute();
 
-  // First user gets Super Admin
-  userRoles.push({ userId: userIds[0], roleId: roleIds[0] });
-  // Second user gets Admin
-  userRoles.push({ userId: userIds[1], roleId: roleIds[1] });
-  // Third user gets Editor
-  userRoles.push({ userId: userIds[2], roleId: roleIds[2] });
-  // Fourth user gets Moderator
-  userRoles.push({ userId: userIds[3], roleId: roleIds[3] });
-  // Rest get Viewer
-  for (let i = 4; i < usersData.length; i++) {
-    userRoles.push({ userId: userIds[i], roleId: roleIds[4] });
+    createdCount++;
   }
 
-  await db.insertInto("user_roles").values(userRoles).execute();
-
-  console.log(`Successfully seeded ${usersData.length} users with roles`);
+  console.log(`Successfully seeded ${createdCount} new users`);
 };

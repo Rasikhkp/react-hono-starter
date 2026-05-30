@@ -16,5 +16,6 @@ export const editUserSchema = type({
   }),
   isActive: type("boolean"),
   isEmailVerified: type("boolean"),
+  "roleIds?": "string[]",
 });
 

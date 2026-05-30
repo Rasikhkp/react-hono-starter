@@ -8,6 +8,7 @@
     "migrate:latest": "bun run ./src/db/migrateToLatest.ts",
     "migrate:up": "bun run ./src/db/migrateUp.ts",
     "migrate:down": "bun run ./src/db/migrateDown.ts",
+    "migrate:reset": "bun run ./src/db/migrateReset.ts",
     "db:typegen": "kysely-codegen --out-file ./src/db/schema.ts --singularize",
     "db:seed": "bun run ./src/db/seeders/index.ts"
   },

@@ -1,4 +1,4 @@
-import { useMutation } from "@tanstack/react-query";
+import { useMutation, useQuery } from "@tanstack/react-query";
 import { queryClient } from "@/main";
 import { FieldGroup } from "@/shared/components/ui/field";
 import { toastManager } from "@/shared/components/ui/toast";
@@ -7,7 +7,7 @@ import { parseSafeError } from "@/shared/lib/error";
 import { useAppForm } from "@/shared/lib/form";
 import { createUserSchema } from "../schemas/createUserSchema";
 import { editUserSchema } from "../schemas/editUserSchema";
-import type { CreateUser, EditUser, User } from "../types";
+import type { CreateUser, EditUser, RoleInfo, User } from "../types";
 
 type CreateModeProps = {
   mode: "create";
@@ -24,6 +24,20 @@ type UserFormProps = CreateModeProps | EditModeProps;
 
 export const UserForm = (props: UserFormProps) => {
   const isEdit = props.mode === "edit";
+
+  const rolesQuery = useQuery({
+    queryKey: ["roles"],
+    queryFn: async () => {
+      return api.get("roles", { credentials: "include" }).json<{
+        data: RoleInfo[];
+      }>();
+    },
+  });
+
+  const roleOptions = (rolesQuery.data?.data ?? []).map((r) => ({
+    label: r.name,
+    value: r.id,
+  }));
 
   const handleError = (error: unknown) => {
     const parsedError = parseSafeError(error);
@@ -87,6 +101,7 @@ export const UserForm = (props: UserFormProps) => {
 
   const form = useAppForm({
     defaultValues: {
+      roleIds: isEdit ? props.user.roles.map((r) => r.id) : [],
       name: isEdit ? props.user.name : "",
       email: isEdit ? props.user.email : "",
       password: "",
@@ -119,6 +134,16 @@ export const UserForm = (props: UserFormProps) => {
       }}
     >
       <FieldGroup>
+        <form.AppField name="roleIds">
+          {(field) => (
+            <field.SelectField
+              label="Roles"
+              options={roleOptions}
+              placeholder="Select roles..."
+            />
+          )}
+        </form.AppField>
+
         <form.AppField name="name">
           {(field) => (
             <field.TextField label="Name" placeholder="John Doe" required />

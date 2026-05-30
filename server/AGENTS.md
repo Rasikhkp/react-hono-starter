@@ -72,7 +72,7 @@ src/
     database.ts         # Kysely instance
     schema.ts           # codegen output — do not hand-edit for new columns; migrate + codegen
     migrations/
-  lib/                  # shared helpers (jwt, cookie, validateData, errors, hashing, etc.)
+   lib/                  # shared helpers (jwt, cookie, validateData, errors, hashing, listQuery, etc.)
   middlewares/
     authMiddleware.ts   # Validates `access_token` cookie, attaches `User` subset to context
   features/<feature>/
@@ -84,7 +84,7 @@ src/
 
 ## Mounting routes
 
-- **Public**: add to `publicApi` in `src/index.ts` (e.g. `publicApi.route("/auth", authRoutes)`).
+- **Public**: add to `publicApi` in `src/routes.ts` (e.g. `publicApi.route("/auth", authRoutes)`).
 - **Protected** (logged-in cookie session): attach routes to `protectedApi` **after** `protectedApi.use("*", authMiddleware)`.
 - Preserve response shape:
 
@@ -102,6 +102,15 @@ Success uses `data`; errors use `error` plus appropriate HTTP status. `AppError`
 - **Cookies**: login/register issue `access_token` (JWT, short-lived) and `refresh_token` (opaque, hashed in DB) via `setCookie` + `cookieOptions` from `@/lib/cookie`.
 - **Protected handlers**: rely on `c.get("user")` after middleware — do not duplicate JWT parsing in controllers unless there is a special case.
 - **Logout / refresh**: follow existing `@/features/auth/controllers` patterns (cookie names: `access_token`, `refresh_token`).
+
+## Paginated list endpoints
+
+For feature list views that need server-side pagination, sorting, and filtering:
+
+1. Use `buildListQuery` from `@/lib/listQuery` in the **service**.
+2. The endpoint should accept query params: `search`, `page`, `pageSize`, `sort`, `order`, plus feature-specific filter keys.
+3. Return `PaginatedResponse<T>` shape — `{ data: T[], pagination: { page, pageSize, total, totalPages } }`.
+4. On the client, use `ServerDataTable` + TanStack Router `search` params (see `client/AGENTS.md`).
 
 ## Validation
 
@@ -126,9 +135,12 @@ Success uses `data`; errors use `error` plus appropriate HTTP status. `AppError`
 2. `features/<name>/services/` — core logic + DB queries.
 3. `features/<name>/controllers/` — thin HTTP layer.
 4. `features/<name>/routes.ts` — wire methods and paths.
-5. Mount router in `src/index.ts` (public vs protected).
+5. Mount router in `src/routes.ts` (public vs protected).
 6. If persistence changes: migration under `src/db/migrations`, then regenerate types (`pnpm` / README scripts for codegen).
-7. Update `openapi.json` if API docs must stay accurate (Scalar serves it at `/doc`).
+7. If the feature needs a paginated list view:
+   - Server: use `buildListQuery` from `@/lib/listQuery` in the service.
+   - Client: use `ServerDataTable` with TanStack Router `search` params.
+8. Update `openapi.json` if API docs must stay accurate (Scalar serves it at `/doc`).
 
 ## Imports
 

@@ -1,8 +1,5 @@
-import { Loader2, Upload, X } from "lucide-react";
-import { useId, useState } from "react";
-import { toastManager } from "@/shared/components/ui/toast";
-import { api } from "@/shared/lib/api";
-import { parseSafeError } from "@/shared/lib/error";
+import { Upload, X } from "lucide-react";
+import { useEffect, useId, useState } from "react";
 import { useFieldContext } from "@/shared/lib/form";
 import { Field, FieldError, FieldLabel } from "../ui/field";
 
@@ -15,45 +12,35 @@ export const ImageUploadField = ({
   label,
   required = false,
 }: ImageUploadFieldProps) => {
-  const field = useFieldContext<string>();
+  const field = useFieldContext<string | File | null>();
   const id = useId();
-  const [uploading, setUploading] = useState(false);
+  const [objectUrl, setObjectUrl] = useState<string | null>(null);
   const isInvalid = field.state.meta.isTouched && !field.state.meta.isValid;
 
-  const imagePath = field.state.value;
+  const imagePath =
+    typeof field.state.value === "string" ? field.state.value : null;
+  const imageFile =
+    field.state.value instanceof File ? field.state.value : null;
 
-  const handleFileChange = async (file: File | undefined) => {
-    if (!file || !file.type.startsWith("image/")) return;
-
-    setUploading(true);
-    try {
-      const formData = new FormData();
-      formData.append("file", file);
-
-      const res = await api
-        .post("upload", { credentials: "include", body: formData })
-        .json<{ data: { path: string } | null; error: unknown | null }>();
-
-      if (res.data?.path) {
-        field.handleChange(res.data.path);
-      } else {
-        throw new Error("Upload failed");
-      }
-    } catch (err) {
-      const parsed = parseSafeError(err);
-      toastManager.add({
-        type: "error",
-        title: "Upload failed",
-        description: parsed.message,
-      });
-    } finally {
-      setUploading(false);
+  useEffect(() => {
+    if (imageFile) {
+      const url = URL.createObjectURL(imageFile);
+      setObjectUrl(url);
+      return () => URL.revokeObjectURL(url);
     }
+    setObjectUrl(null);
+  }, [imageFile]);
+
+  const handleFileChange = (file: File | undefined) => {
+    if (!file || !file.type.startsWith("image/")) return;
+    field.handleChange(file);
   };
 
   const handleRemove = () => {
-    field.handleChange("");
+    field.handleChange(null);
   };
+
+  const hasImage = imagePath || objectUrl;
 
   return (
     <Field data-invalid={isInvalid}>
@@ -62,10 +49,13 @@ export const ImageUploadField = ({
         {required && <span className="text-red-500">*</span>}
       </FieldLabel>
 
-      {imagePath ? (
+      {hasImage ? (
         <div className="group relative overflow-hidden rounded-lg border bg-background">
           <img
-            src={`${import.meta.env.VITE_BACKEND_URL}${imagePath}`}
+            src={
+              objectUrl ??
+              `${import.meta.env.VITE_BACKEND_URL}${imagePath ?? ""}`
+            }
             alt="Preview"
             className="h-32 w-full object-contain"
           />
@@ -85,26 +75,14 @@ export const ImageUploadField = ({
           htmlFor={id}
           className="relative flex h-32 cursor-pointer flex-col items-center justify-center gap-2 rounded-lg border border-dashed border-input bg-background transition-colors hover:bg-accent hover:text-accent-foreground"
         >
-          {uploading ? (
-            <>
-              <Loader2 className="h-6 w-6 animate-spin text-muted-foreground" />
-              <span className="text-sm text-muted-foreground">
-                Uploading...
-              </span>
-            </>
-          ) : (
-            <>
-              <Upload className="h-6 w-6 text-muted-foreground" />
-              <span className="text-sm text-muted-foreground">
-                Click to upload image
-              </span>
-            </>
-          )}
+          <Upload className="h-6 w-6 text-muted-foreground" />
+          <span className="text-sm text-muted-foreground">
+            Click to upload image
+          </span>
           <input
             id={id}
             type="file"
             accept="image/*"
-            disabled={uploading}
             onChange={(e) => handleFileChange(e.target.files?.[0])}
             className="sr-only"
           />

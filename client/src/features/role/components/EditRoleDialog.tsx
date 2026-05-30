@@ -20,7 +20,7 @@ export function EditRoleDialog() {
 
   return (
     <Dialog open={open} onOpenChange={setOpen}>
-      <DialogPopup className="sm:max-w-lg">
+      <DialogPopup className="sm:max-w-xl">
         <DialogHeader>
           <DialogTitle>Edit Role</DialogTitle>
           <DialogDescription>

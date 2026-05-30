@@ -1,33 +1,41 @@
 import { CardFrame } from "@/shared/components/ui/card";
 import { Table } from "@/shared/components/ui/table";
-import { useDataTable } from "@/shared/hooks/useDataTable";
-import type { DataTableProps } from "@/shared/types/dataTable";
+import { useServerTable } from "@/shared/hooks/useServerTable";
+import type { ServerDataTableProps } from "@/shared/types/dataTable";
 import { DataTableBody } from "./DataTableBody";
 import { DataTableFooter } from "./DataTableFooter";
 import { DataTableHeader } from "./DataTableHeader";
 import { DataTableToolbar } from "./DataTableToolbar";
 import { DataTableTopPagination } from "./DataTableTopPagination";
 
-export function DataTable<TData>({
+export function ServerDataTable<TData>({
   data,
   isLoading,
   isError,
   columns,
+  pageCount,
+  totalRowCount,
+  state,
+  onPaginationChange,
+  onSortingChange,
+  onGlobalFilterChange,
+  onColumnFiltersChange,
   searchPlaceholder,
   filterableColumns,
   sortableColumns,
   onExport,
   onDeleteMany,
-  defaultPageSize,
-  defaultSort,
-}: DataTableProps<TData>) {
-  const table = useDataTable({
+}: ServerDataTableProps<TData>) {
+  const table = useServerTable({
     data,
-    isError,
-    isLoading,
     columns,
-    defaultPageSize,
-    defaultSort,
+    pageCount,
+    totalRowCount,
+    state,
+    onPaginationChange,
+    onSortingChange,
+    onGlobalFilterChange,
+    onColumnFiltersChange,
   });
 
   return (

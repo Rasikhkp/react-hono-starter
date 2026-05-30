@@ -5,8 +5,13 @@ import { createUserController } from "./controllers/createUserController";
 import { editUserController } from "./controllers/editUserController";
 import { deleteUserController } from "./controllers/deleteUserController";
 import { deleteUsersController } from "./controllers/deleteUsersController";
+import { getMeController } from "./controllers/getMeController";
+import { updateProfileController } from "./controllers/updateProfileController";
 
 const userRoutes = new Hono();
+
+userRoutes.get("/me", getMeController);
+userRoutes.patch("/me", updateProfileController);
 
 userRoutes.get("/users", authorize("users:read"), getUsersController);
 userRoutes.post("/users", authorize("users:create"), createUserController);

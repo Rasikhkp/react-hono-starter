@@ -30,7 +30,9 @@ export function DataTableToolbar<TData>({
 }: Props<TData>) {
   const handleSearch = (value: string) => {
     table.setGlobalFilter(value);
-    table.setPageIndex(0);
+    if (!table.options.manualPagination) {
+      table.setPageIndex(0);
+    }
   };
 
   const handleDeleteMany = useCallback(() => {
