@@ -3,7 +3,7 @@
   "info": {
     "title": "React Hono Starter API",
     "version": "1.0.0",
-    "description": "API for authentication and user management"
+    "description": "API for authentication, user management, roles, and permissions"
   },
   "servers": [
     {
@@ -14,9 +14,7 @@
   "paths": {
     "/api/auth/register": {
       "post": {
-        "tags": [
-          "Auth"
-        ],
+        "tags": ["Auth"],
         "summary": "Register a new user",
         "requestBody": {
           "required": true,
@@ -25,55 +23,25 @@
               "schema": {
                 "type": "object",
                 "properties": {
-                  "name": {
-                    "type": "string",
-                    "minLength": 2
-                  },
-                  "email": {
-                    "type": "string",
-                    "format": "email"
-                  },
-                  "password": {
-                    "type": "string",
-                    "minLength": 8
-                  }
+                  "name": { "type": "string", "minLength": 2 },
+                  "email": { "type": "string", "format": "email" },
+                  "password": { "type": "string", "minLength": 8 }
                 },
-                "required": [
-                  "name",
-                  "email",
-                  "password"
-                ]
+                "required": ["name", "email", "password"]
               }
             }
           }
         },
         "responses": {
-          "200": {
-            "description": "Successful registration",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "type": "object",
-                  "properties": {
-                    "data": {
-                      "type": "null"
-                    }
-                  }
-                }
-              }
-            }
-          },
-          "400": {
-            "description": "Validation Error"
-          }
+          "200": { "description": "Registration successful", "content": { "application/json": { "schema": { "type": "object", "properties": { "data": { "type": "null" } } } } } },
+          "400": { "description": "Validation error" },
+          "409": { "description": "Email already exists" }
         }
       }
     },
     "/api/auth/login": {
       "post": {
-        "tags": [
-          "Auth"
-        ],
+        "tags": ["Auth"],
         "summary": "Login user",
         "description": "Authenticates user and sets access_token and refresh_token cookies.",
         "requestBody": {
@@ -83,59 +51,30 @@
               "schema": {
                 "type": "object",
                 "properties": {
-                  "email": {
-                    "type": "string",
-                    "format": "email"
-                  },
-                  "password": {
-                    "type": "string",
-                    "minLength": 8
-                  }
+                  "email": { "type": "string", "format": "email" },
+                  "password": { "type": "string", "minLength": 8 }
                 },
-                "required": [
-                  "email",
-                  "password"
-                ]
+                "required": ["email", "password"]
               }
             }
           }
         },
         "responses": {
           "200": {
-            "description": "Successful login",
+            "description": "Login successful; cookies set",
             "headers": {
-              "Set-Cookie": {
-                "description": "Sets access_token and refresh_token",
-                "schema": {
-                  "type": "string"
-                }
-              }
+              "Set-Cookie": { "description": "Sets access_token and refresh_token", "schema": { "type": "string" } }
             },
-            "content": {
-              "application/json": {
-                "schema": {
-                  "type": "object",
-                  "properties": {
-                    "data": {
-                      "type": "null"
-                    }
-                  }
-                }
-              }
-            }
+            "content": { "application/json": { "schema": { "type": "object", "properties": { "data": { "$ref": "#/components/schemas/AuthUser" } } } } }
           },
-          "400": {
-            "description": "Invalid credentials or validation error"
-          }
+          "400": { "description": "Invalid credentials or validation error" }
         }
       }
     },
     "/api/auth/refresh": {
       "post": {
-        "tags": [
-          "Auth"
-        ],
-        "summary": "Refresh tokens",
+        "tags": ["Auth"],
+        "summary": "Refresh access token",
         "requestBody": {
           "required": true,
           "content": {
@@ -143,33 +82,16 @@
               "schema": {
                 "type": "object",
                 "properties": {
-                  "refreshToken": {
-                    "type": "string"
-                  }
+                  "refreshToken": { "type": "string" }
                 },
-                "required": [
-                  "refreshToken"
-                ]
+                "required": ["refreshToken"]
               }
             }
           }
         },
         "responses": {
-          "200": {
-            "description": "Tokens successfully refreshed",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "type": "object",
-                  "properties": {
-                    "data": {
-                      "type": "null"
-                    }
-                  }
-                }
-              }
-            }
-          }
+          "200": { "description": "Tokens refreshed" },
+          "401": { "description": "Invalid or expired refresh token" }
         }
       }
     },
@@ -177,7 +99,7 @@
       "post": {
         "tags": ["Auth"],
         "summary": "Sign in with Google (authorization code)",
-        "description": "Exchanges a GIS popup authorization code using GOOGLE_REDIRECT_URI from server env (must match SPA origin and Google Console Authorized redirect URIs); provisions/links user and sets cookies.",
+        "description": "Exchanges a GIS popup authorization code; provisions/links user and sets cookies.",
         "requestBody": {
           "required": true,
           "content": {
@@ -185,10 +107,8 @@
               "schema": {
                 "type": "object",
                 "properties": {
-                  "code": {
-                    "type": "string",
-                    "description": "Authorization code from Google Identity Services popup flow"
-                  }
+                  "code": { "type": "string", "description": "Authorization code from Google Identity Services popup flow" },
+                  "redirectUri": { "type": "string", "description": "Optional override for GOOGLE_REDIRECT_URI" }
                 },
                 "required": ["code"]
               }
@@ -196,64 +116,20 @@
           }
         },
         "responses": {
-          "200": {
-            "description": "Session created; cookies set",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "type": "object",
-                  "properties": {
-                    "data": {
-                      "$ref": "#/components/schemas/AuthUser"
-                    }
-                  }
-                }
-              }
-            }
-          },
-          "400": {
-            "description": "Validation or linking requirement (e.g. unverified Google email)"
-          },
-          "409": {
-            "description": "Conflicting Google or email linkage"
-          }
+          "200": { "description": "Session created; cookies set", "content": { "application/json": { "schema": { "type": "object", "properties": { "data": { "$ref": "#/components/schemas/AuthUser" } } } } } },
+          "400": { "description": "Validation or linking requirement" },
+          "409": { "description": "Conflicting Google or email linkage" }
         }
       }
     },
-    "/api/auth/set-password": {
+    "/api/auth/logout": {
       "post": {
         "tags": ["Auth"],
-        "summary": "Set password (OAuth-first accounts)",
+        "summary": "Logout user",
+        "description": "Clears access_token and refresh_token cookies.",
         "security": [{ "cookieAuth": [] }],
-        "requestBody": {
-          "required": true,
-          "content": {
-            "application/json": {
-              "schema": {
-                "type": "object",
-                "properties": {
-                  "password": { "type": "string", "minLength": 8 }
-                },
-                "required": ["password"]
-              }
-            }
-          }
-        },
         "responses": {
-          "200": {
-            "description": "Password saved",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "type": "object",
-                  "properties": {
-                    "data": { "$ref": "#/components/schemas/AuthUser" }
-                  }
-                }
-              }
-            }
-          },
-          "409": { "description": "Password already set" }
+          "200": { "description": "Logged out successfully" }
         }
       }
     },
@@ -264,67 +140,124 @@
         "description": "Requires an existing password. Clears googleSub.",
         "security": [{ "cookieAuth": [] }],
         "responses": {
-          "200": {
-            "description": "Google unlinked",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "type": "object",
-                  "properties": {
-                    "data": { "$ref": "#/components/schemas/AuthUser" }
-                  }
-                }
-              }
-            }
-          },
-          "400": {
-            "description": "Google not linked or password not set"
-          }
+          "200": { "description": "Google unlinked", "content": { "application/json": { "schema": { "type": "object", "properties": { "data": { "$ref": "#/components/schemas/AuthUser" } } } } } },
+          "400": { "description": "Google not linked or password not set" }
         }
       }
     },
     "/api/me": {
       "get": {
-        "tags": [
-          "User"
-        ],
+        "tags": ["User"],
         "summary": "Get current user info",
-        "security": [
-          {
-            "cookieAuth": []
-          }
-        ],
+        "security": [{ "cookieAuth": [] }],
         "responses": {
-          "200": {
-            "description": "Returns current user details",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "type": "object",
-                  "properties": {
-                    "data": {
-                      "$ref": "#/components/schemas/AuthUser"
-                    }
-                  }
-                }
-              }
-            }
-          },
-          "401": {
-            "description": "Unauthorized"
-          }
+          "200": { "description": "Current user details", "content": { "application/json": { "schema": { "type": "object", "properties": { "data": { "$ref": "#/components/schemas/AuthUser" } } } } } },
+          "401": { "description": "Unauthorized" }
         }
       },
       "patch": {
-        "tags": [
-          "User"
-        ],
+        "tags": ["User"],
         "summary": "Update current user profile",
-        "description": "Updates name and email for the authenticated user; optional password change when both oldPassword and newPassword are sent. Email change clears isEmailVerified until verification exists.",
-        "security": [
-          {
-            "cookieAuth": []
+        "description": "Accepts multipart/form-data. Updates name and email; optional password change.",
+        "security": [{ "cookieAuth": [] }],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "multipart/form-data": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "name": { "type": "string", "minLength": 2 },
+                  "email": { "type": "string", "format": "email" },
+                  "password": { "type": "string", "minLength": 8, "description": "New password to set (admin resets user's password)" },
+                  "avatar": { "type": "string", "format": "binary", "description": "Avatar image file; omit to keep, empty string to remove" }
+                },
+                "required": ["name", "email"]
+              }
+            }
           }
+        },
+        "responses": {
+          "200": { "description": "Profile updated", "content": { "application/json": { "schema": { "type": "object", "properties": { "data": { "$ref": "#/components/schemas/AuthUser" } } } } } },
+          "400": { "description": "Validation error" },
+          "401": { "description": "Unauthorized or wrong current password" },
+          "409": { "description": "Email already in use" }
+        }
+      }
+    },
+    "/api/users": {
+      "get": {
+        "tags": ["Users"],
+        "summary": "List all users",
+        "description": "Returns all users with their assigned roles.",
+        "security": [{ "cookieAuth": [] }],
+        "responses": {
+          "200": { "description": "List of users", "content": { "application/json": { "schema": { "type": "object", "properties": { "data": { "type": "array", "items": { "$ref": "#/components/schemas/User" } } } } } } }
+        }
+      },
+      "post": {
+        "tags": ["Users"],
+        "summary": "Create a user",
+        "security": [{ "cookieAuth": [] }],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "name": { "type": "string", "minLength": 2 },
+                  "email": { "type": "string", "format": "email" },
+                  "password": { "type": "string", "minLength": 8 },
+                  "isActive": { "type": "boolean", "default": false },
+                  "isEmailVerified": { "type": "boolean", "default": false },
+                  "roleIds": { "type": "array", "items": { "type": "string" }, "description": "Role IDs to assign" }
+                },
+                "required": ["name", "email", "password"]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": { "description": "User created" },
+          "400": { "description": "Validation error" },
+          "409": { "description": "Email already exists" }
+        }
+      }
+    },
+    "/api/users/bulk-delete": {
+      "post": {
+        "tags": ["Users"],
+        "summary": "Delete multiple users",
+        "security": [{ "cookieAuth": [] }],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "ids": { "type": "array", "items": { "type": "string" } }
+                },
+                "required": ["ids"]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": { "description": "Users deleted" },
+          "400": { "description": "No ids provided" },
+          "404": { "description": "No users found" }
+        }
+      }
+    },
+    "/api/users/{id}": {
+      "put": {
+        "tags": ["Users"],
+        "summary": "Update a user",
+        "security": [{ "cookieAuth": [] }],
+        "parameters": [
+          { "name": "id", "in": "path", "required": true, "schema": { "type": "string" } }
         ],
         "requestBody": {
           "required": true,
@@ -333,87 +266,196 @@
               "schema": {
                 "type": "object",
                 "properties": {
-                  "name": {
-                    "type": "string",
-                    "minLength": 2
-                  },
-                  "email": {
-                    "type": "string",
-                    "format": "email"
-                  },
-                  "oldPassword": {
-                    "type": "string",
-                    "description": "Required together with newPassword to change password"
-                  },
-                  "newPassword": {
-                    "type": "string",
-                    "minLength": 8,
-                    "description": "Required together with oldPassword"
-                  }
+                  "name": { "type": "string", "minLength": 2 },
+                  "email": { "type": "string", "format": "email" },
+                  "password": { "type": "string", "minLength": 8, "description": "New password to set (admin resets user's password)" },
+                  "isActive": { "type": "boolean" },
+                  "isEmailVerified": { "type": "boolean" },
+                  "roleIds": { "type": "array", "items": { "type": "string" } }
                 },
-                "required": [
-                  "name",
-                  "email"
-                ]
+                "required": ["name", "email", "isActive", "isEmailVerified"]
               }
             }
           }
         },
         "responses": {
-          "200": {
-            "description": "Updated AuthUser payload",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "type": "object",
-                  "properties": {
-                    "data": {
-                      "$ref": "#/components/schemas/AuthUser"
-                    }
-                  }
-                }
-              }
-            }
-          },
-          "400": {
-            "description": "Validation error"
-          },
-          "401": {
-            "description": "Unauthorized or wrong current password"
-          },
-          "409": {
-            "description": "Email already in use"
-          }
+          "200": { "description": "User updated" },
+          "400": { "description": "Validation error" },
+          "404": { "description": "User not found" },
+          "409": { "description": "Email already exists" }
+        }
+      },
+      "delete": {
+        "tags": ["Users"],
+        "summary": "Delete a user",
+        "security": [{ "cookieAuth": [] }],
+        "parameters": [
+          { "name": "id", "in": "path", "required": true, "schema": { "type": "string" } }
+        ],
+        "responses": {
+          "200": { "description": "User deleted" },
+          "404": { "description": "User not found" }
         }
       }
     },
-    "/api/auth/logout": {
-      "post": {
-        "tags": [
-          "Auth"
-        ],
-        "summary": "Logout user",
-        "security": [
-          {
-            "cookieAuth": []
-          }
-        ],
+    "/api/roles": {
+      "get": {
+        "tags": ["Roles"],
+        "summary": "List all roles",
+        "description": "Returns all roles with their assigned permissions.",
+        "security": [{ "cookieAuth": [] }],
         "responses": {
-          "200": {
-            "description": "Successfully logged out and cookies cleared",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "type": "object",
-                  "properties": {
-                    "data": {
-                      "type": "null"
-                    }
-                  }
-                }
+          "200": { "description": "List of roles", "content": { "application/json": { "schema": { "type": "object", "properties": { "data": { "type": "array", "items": { "$ref": "#/components/schemas/Role" } } } } } } }
+        }
+      },
+      "post": {
+        "tags": ["Roles"],
+        "summary": "Create a role",
+        "security": [{ "cookieAuth": [] }],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "name": { "type": "string", "minLength": 2 },
+                  "description": { "type": "string", "nullable": true },
+                  "permissionIds": { "type": "array", "items": { "type": "string" } }
+                },
+                "required": ["name", "description"]
               }
             }
           }
+        },
+        "responses": {
+          "200": { "description": "Role created" },
+          "400": { "description": "Validation error" },
+          "409": { "description": "Role name already exists" }
+        }
+      }
+    },
+    "/api/roles/{id}": {
+      "put": {
+        "tags": ["Roles"],
+        "summary": "Update a role",
+        "security": [{ "cookieAuth": [] }],
+        "parameters": [
+          { "name": "id", "in": "path", "required": true, "schema": { "type": "string" } }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "name": { "type": "string", "minLength": 2 },
+                  "description": { "type": "string", "nullable": true },
+                  "permissionIds": { "type": "array", "items": { "type": "string" } }
+                },
+                "required": ["name", "description"]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": { "description": "Role updated" },
+          "400": { "description": "Validation error" },
+          "404": { "description": "Role not found" },
+          "409": { "description": "Role name already exists" }
+        }
+      },
+      "delete": {
+        "tags": ["Roles"],
+        "summary": "Delete a role",
+        "security": [{ "cookieAuth": [] }],
+        "parameters": [
+          { "name": "id", "in": "path", "required": true, "schema": { "type": "string" } }
+        ],
+        "responses": {
+          "200": { "description": "Role deleted" },
+          "404": { "description": "Role not found" }
+        }
+      }
+    },
+    "/api/permissions": {
+      "get": {
+        "tags": ["Permissions"],
+        "summary": "List all permissions",
+        "security": [{ "cookieAuth": [] }],
+        "responses": {
+          "200": { "description": "List of permissions", "content": { "application/json": { "schema": { "type": "object", "properties": { "data": { "type": "array", "items": { "$ref": "#/components/schemas/Permission" } } } } } } }
+        }
+      },
+      "post": {
+        "tags": ["Permissions"],
+        "summary": "Create a permission",
+        "security": [{ "cookieAuth": [] }],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "name": { "type": "string", "minLength": 2 },
+                  "description": { "type": "string", "nullable": true },
+                  "resource": { "type": "string", "minLength": 1 }
+                },
+                "required": ["name", "description", "resource"]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": { "description": "Permission created" },
+          "400": { "description": "Validation error" },
+          "409": { "description": "Permission name already exists" }
+        }
+      }
+    },
+    "/api/permissions/{id}": {
+      "put": {
+        "tags": ["Permissions"],
+        "summary": "Update a permission",
+        "security": [{ "cookieAuth": [] }],
+        "parameters": [
+          { "name": "id", "in": "path", "required": true, "schema": { "type": "string" } }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "name": { "type": "string", "minLength": 2 },
+                  "description": { "type": "string", "nullable": true },
+                  "resource": { "type": "string", "minLength": 1 }
+                },
+                "required": ["name", "description", "resource"]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": { "description": "Permission updated" },
+          "400": { "description": "Validation error" },
+          "404": { "description": "Permission not found" },
+          "409": { "description": "Permission name already exists" }
+        }
+      },
+      "delete": {
+        "tags": ["Permissions"],
+        "summary": "Delete a permission",
+        "security": [{ "cookieAuth": [] }],
+        "parameters": [
+          { "name": "id", "in": "path", "required": true, "schema": { "type": "string" } }
+        ],
+        "responses": {
+          "200": { "description": "Permission deleted" },
+          "404": { "description": "Permission not found" }
         }
       }
     }
@@ -429,36 +471,63 @@
           "isActive": { "type": "integer", "nullable": true },
           "isEmailVerified": { "type": "integer", "nullable": true },
           "googleSub": { "type": "string", "nullable": true },
-          "hasPassword": { "type": "boolean" }
+          "hasPassword": { "type": "boolean" },
+          "avatar": { "type": "string", "nullable": true },
+          "roles": { "type": "array", "items": { "$ref": "#/components/schemas/RoleInfo" } },
+          "permissions": { "type": "array", "items": { "$ref": "#/components/schemas/PermissionInfo" } }
         }
       },
       "User": {
         "type": "object",
         "properties": {
-          "id": {
-            "type": "string"
-          },
-          "name": {
-            "type": "string"
-          },
-          "email": {
-            "type": "string",
-            "format": "email"
-          },
-          "is_active": {
-            "type": "integer"
-          },
-          "is_email_verified": {
-            "type": "integer"
-          },
-          "created_at": {
-            "type": "string",
-            "format": "date-time"
-          },
-          "updated_at": {
-            "type": "string",
-            "format": "date-time"
-          }
+          "id": { "type": "string" },
+          "name": { "type": "string" },
+          "email": { "type": "string", "format": "email" },
+          "isActive": { "type": "integer", "nullable": true },
+          "isEmailVerified": { "type": "integer", "nullable": true },
+          "googleSub": { "type": "string", "nullable": true },
+          "hasPassword": { "type": "integer" },
+          "avatar": { "type": "string", "nullable": true },
+          "createdAt": { "type": "string", "format": "date-time", "nullable": true },
+          "updatedAt": { "type": "string", "format": "date-time", "nullable": true },
+          "roles": { "type": "array", "items": { "$ref": "#/components/schemas/RoleInfo" } }
+        }
+      },
+      "Role": {
+        "type": "object",
+        "properties": {
+          "id": { "type": "string" },
+          "name": { "type": "string" },
+          "description": { "type": "string", "nullable": true },
+          "createdAt": { "type": "string", "format": "date-time", "nullable": true },
+          "updatedAt": { "type": "string", "format": "date-time", "nullable": true },
+          "permissions": { "type": "array", "items": { "$ref": "#/components/schemas/Permission" } }
+        }
+      },
+      "Permission": {
+        "type": "object",
+        "properties": {
+          "id": { "type": "string" },
+          "name": { "type": "string" },
+          "description": { "type": "string", "nullable": true },
+          "resource": { "type": "string" },
+          "createdAt": { "type": "string", "format": "date-time", "nullable": true },
+          "updatedAt": { "type": "string", "format": "date-time", "nullable": true }
+        }
+      },
+      "RoleInfo": {
+        "type": "object",
+        "properties": {
+          "id": { "type": "string" },
+          "name": { "type": "string" }
+        }
+      },
+      "PermissionInfo": {
+        "type": "object",
+        "properties": {
+          "id": { "type": "string" },
+          "name": { "type": "string" },
+          "resource": { "type": "string" }
         }
       }
     },

@@ -37,8 +37,7 @@ export type EditUser = {
   id: string;
   name: string;
   email: string;
-  oldPassword?: string;
-  newPassword?: string;
+  password?: string;
   isActive: boolean;
   isEmailVerified: boolean;
   roleIds: string[];

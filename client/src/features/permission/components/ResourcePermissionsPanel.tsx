@@ -81,7 +81,6 @@ export function ResourcePermissionsPanel({
                         aria-label={`Edit ${permission.name}`}
                       >
                         <Pencil className="size-3.5" />
-                        Edit
                       </Button>
                     )}
                     {canDelete && (
@@ -91,8 +90,7 @@ export function ResourcePermissionsPanel({
                         onClick={() => handleDelete(permission)}
                         aria-label={`Delete ${permission.name}`}
                       >
-                        <Trash2 className="size-3.5" />
-                        Del
+                        <Trash2 className="size-3.5 text-destructive" />
                       </Button>
                     )}
                   </div>

@@ -1,20 +1,19 @@
 import { db } from "@/db/database";
 import { AppError, ERROR_TYPES } from "@/lib/error";
-import { hashPassword, verifyPassword } from "@/lib/password";
+import { hashPassword } from "@/lib/password";
 
 type EditUser = {
   id: string;
   name: string;
   email: string;
-  oldPassword?: string;
-  newPassword?: string;
+  password?: string;
   isActive: boolean;
   isEmailVerified: boolean;
   roleIds?: string[];
 }
 
 export const editUser = async (input: EditUser) => {
-  const user = await db.selectFrom('users').select(['id', 'password']).where('id', '=', input.id).executeTakeFirst()
+  const user = await db.selectFrom('users').select(['id']).where('id', '=', input.id).executeTakeFirst()
 
   if (!user) {
     throw new AppError(
@@ -26,26 +25,8 @@ export const editUser = async (input: EditUser) => {
 
   let newHashedPassword;
 
-  if (input.oldPassword && input.newPassword) {
-    if (user.password === null) {
-      throw new AppError(
-        ERROR_TYPES.VALIDATION_ERROR,
-        "Password change is only available after a password has been set for this account",
-        400
-      );
-    }
-
-    const valid = await verifyPassword(user.password, input.oldPassword);
-
-    if (!valid) {
-      throw new AppError(
-        ERROR_TYPES.UNAUTHORIZED,
-        "Old password is wrong",
-        401
-      );
-    }
-
-    newHashedPassword = await hashPassword(input.newPassword);
+  if (input.password) {
+    newHashedPassword = await hashPassword(input.password);
   }
 
   const updatedUserData = {

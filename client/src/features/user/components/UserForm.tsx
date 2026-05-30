@@ -105,8 +105,6 @@ export const UserForm = (props: UserFormProps) => {
       name: isEdit ? props.user.name : "",
       email: isEdit ? props.user.email : "",
       password: "",
-      oldPassword: "",
-      newPassword: "",
       isActive: isEdit ? Boolean(props.user.isActive) : false,
       isEmailVerified: isEdit ? Boolean(props.user.isEmailVerified) : false,
     },
@@ -160,23 +158,14 @@ export const UserForm = (props: UserFormProps) => {
           )}
         </form.AppField>
 
-        {isEdit ? (
-          <>
-            <form.AppField name="oldPassword">
-              {(field) => <field.PasswordField label="Old Password" />}
-            </form.AppField>
-
-            <form.AppField name="newPassword">
-              {(field) => <field.PasswordField label="New Password" />}
-            </form.AppField>
-          </>
-        ) : (
-          <form.AppField name="password">
-            {(field) => (
-              <field.PasswordField label="Password" required={true} />
-            )}
-          </form.AppField>
-        )}
+        <form.AppField name="password">
+          {(field) => (
+            <field.PasswordField
+              label={isEdit ? "New Password" : "Password"}
+              required={!isEdit}
+            />
+          )}
+        </form.AppField>
 
         <form.AppField name="isActive">
           {(field) => <field.CheckboxField label="Is active" />}
