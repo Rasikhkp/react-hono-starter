@@ -1,6 +1,5 @@
 import { db } from "@/db/database";
 import { AppError, ERROR_TYPES } from "@/lib/error";
-import { v7 } from "uuid";
 
 type CreateRole = {
   name: string;
@@ -9,7 +8,7 @@ type CreateRole = {
 };
 
 export const createRole = async (input: CreateRole) => {
-  const newRoleId = v7();
+  const newRoleId = Bun.randomUUIDv7();
 
   try {
     await db

@@ -5,6 +5,7 @@
     "docker:down": "docker compose down",
     "dev": "bun run --hot src/index.ts",
     "build": "bun build src/index.ts --outdir dist --target bun",
+    "typecheck": "tsc --noEmit",
     "migrate:latest": "bun run ./src/db/migrateToLatest.ts",
     "migrate:up": "bun run ./src/db/migrateUp.ts",
     "migrate:down": "bun run ./src/db/migrateDown.ts",
@@ -13,23 +14,21 @@
     "db:seed": "bun run ./src/db/seeders/index.ts"
   },
   "dependencies": {
-    "@scalar/hono-api-reference": "^0.10.14",
-    "argon2": "^0.44.0",
-    "arkenv": "^0.11.0",
-    "arktype": "^2.2.0",
-    "crypto": "^1.0.1",
-    "date-fns": "^4.1.0",
-    "google-auth-library": "^10.6.2",
-    "hono": "^4.12.14",
-    "jose": "^6.2.2",
-    "kysely": "^0.28.16",
-    "mysql2": "^3.22.2",
-    "uuid": "^14.0.0"
+    "@scalar/hono-api-reference": "^0.12.0",
+    "argon2": "^0.45.1",
+    "arkenv": "^0.12.3",
+    "arktype": "^2.2.3",
+    "date-fns": "^4.4.0",
+    "google-auth-library": "^11.0.2",
+    "hono": "^4.13.7",
+    "jose": "^6.2.12",
+    "kysely": "^0.29.5",
+    "mysql2": "^3.24.3"
   },
   "devDependencies": {
-    "@types/bun": "latest",
-    "@types/node": "^25.6.2",
+    "@types/bun": "^1.4.1",
+    "@types/node": "^26.4.1",
     "kysely-codegen": "^0.20.0",
-    "typescript": "^6.0.3"
+    "typescript": "^7.0.2"
   }
 }

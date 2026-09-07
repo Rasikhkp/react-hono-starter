@@ -1,5 +1,4 @@
 import { db } from "../database";
-import { v7 } from "uuid";
 
 const permissionsData = [
   { name: "users:read", resource: "users", description: "View a paginated list of all users, including their profile details, assigned roles, account status, and activity state" },
@@ -29,7 +28,7 @@ export const permissionSeeder = async () => {
     return [];
   }
 
-  const permissionIds = permissionsData.map(() => v7());
+  const permissionIds = permissionsData.map(() => Bun.randomUUIDv7());
 
   await db
     .insertInto("permissions")

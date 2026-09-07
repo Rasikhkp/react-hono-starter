@@ -1,4 +1,3 @@
-import { v7 } from "uuid";
 import { add } from "date-fns";
 import { db } from "@/db/database";
 import { AppError, ERROR_TYPES } from "@/lib/error";
@@ -24,13 +23,13 @@ export async function createAuthSession(userId: string) {
     sub: row.id,
   });
 
-  const refreshToken = v7();
+  const refreshToken = Bun.randomUUIDv7();
   const tokenHash = await hashToken(refreshToken);
 
   await db
     .insertInto("refresh_tokens")
     .values({
-      id: v7(),
+      id: Bun.randomUUIDv7(),
       userId: row.id,
       tokenHash,
       expiresAt: add(new Date(), { days: 7 }),

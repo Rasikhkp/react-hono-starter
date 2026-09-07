@@ -3,7 +3,7 @@ import { promises as fs } from 'fs'
 import {
   Migrator,
   FileMigrationProvider,
-} from 'kysely'
+} from 'kysely/migration'
 import { db } from './database'
 
 export const migrator = new Migrator({

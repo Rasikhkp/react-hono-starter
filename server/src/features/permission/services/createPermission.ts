@@ -1,6 +1,5 @@
 import { db } from "@/db/database";
 import { AppError, ERROR_TYPES } from "@/lib/error";
-import { v7 } from "uuid";
 
 type CreatePermission = {
   name: string;
@@ -9,7 +8,7 @@ type CreatePermission = {
 };
 
 export const createPermission = async (input: CreatePermission) => {
-  const newPermissionId = v7();
+  const newPermissionId = Bun.randomUUIDv7();
 
   try {
     await db

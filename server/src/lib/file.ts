@@ -1,6 +1,5 @@
 import path from "path";
 import { mkdir, unlink } from "fs/promises";
-import { v7 } from "uuid";
 
 const UPLOAD_DIR = "uploads";
 
@@ -12,7 +11,7 @@ export const saveFile = async (file: File, subDir = "") => {
   const buffer = await file.arrayBuffer();
 
   const ext = path.extname(file.name);
-  const fileName = `${v7()}${ext}`;
+  const fileName = `${Bun.randomUUIDv7()}${ext}`;
 
   const dir = path.join(UPLOAD_DIR, subDir);
   await ensureDir(dir);

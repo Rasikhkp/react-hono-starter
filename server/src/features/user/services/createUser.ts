@@ -1,7 +1,6 @@
 import { db } from "@/db/database";
 import { AppError, ERROR_TYPES } from "@/lib/error";
 import { hashPassword } from "@/lib/password";
-import { v7 } from "uuid";
 
 type CreateUser = {
   name: string;
@@ -13,7 +12,7 @@ type CreateUser = {
 }
 
 export const createUser = async (input: CreateUser) => {
-  const newUserId = v7()
+  const newUserId = Bun.randomUUIDv7();
 
   const hashedPassword = await hashPassword(input.password);
 

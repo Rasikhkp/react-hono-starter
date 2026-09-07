@@ -1,4 +1,3 @@
-import { v7 } from "uuid";
 import { db } from "@/db/database";
 import { AppError, ERROR_TYPES } from "@/lib/error";
 import { hashToken } from "@/lib/hash";
@@ -40,13 +39,13 @@ export const refresh = async (refreshToken: string) => {
     sub: token.userId,
   });
 
-  const newRefreshToken = v7();
+  const newRefreshToken = Bun.randomUUIDv7();
   const refreshTokenHash = await hashToken(newRefreshToken);
 
   await db
     .insertInto("refresh_tokens")
     .values({
-      id: v7(),
+      id: Bun.randomUUIDv7(),
       userId: token.userId,
       tokenHash: refreshTokenHash,
       expiresAt: add(new Date(), { days: 7 }),

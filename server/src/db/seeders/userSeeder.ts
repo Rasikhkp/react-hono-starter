@@ -1,5 +1,4 @@
 import { db } from "../database";
-import { v7 } from "uuid";
 import { hashPassword } from "../../lib/password";
 
 const usersData = [
@@ -37,7 +36,7 @@ export const userSeeder = async (roleIds: string[]) => {
       continue;
     }
 
-    const userId = v7();
+    const userId = Bun.randomUUIDv7();
     await db
       .insertInto("users")
       .values({

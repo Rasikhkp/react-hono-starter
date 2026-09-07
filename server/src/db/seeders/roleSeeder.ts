@@ -1,5 +1,4 @@
 import { db } from "../database";
-import { v7 } from "uuid";
 
 const rolesData = [
   { name: "Super Admin", description: "Full system access" },
@@ -15,7 +14,7 @@ export const roleSeeder = async (permissionIds: string[]) => {
     return [];
   }
 
-  const roleIds = rolesData.map(() => v7());
+  const roleIds = rolesData.map(() => Bun.randomUUIDv7());
 
   await db
     .insertInto("roles")

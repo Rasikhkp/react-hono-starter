@@ -1,4 +1,3 @@
-import { v7 } from "uuid";
 import { db } from "@/db/database";
 import { hashPassword } from "@/lib/password";
 import { AppError, ERROR_TYPES } from "@/lib/error";
@@ -10,7 +9,7 @@ export const register = async (input: {
   name: string;
 }) => {
   const hashedPassword = await hashPassword(input.password);
-  const newUserId = v7()
+  const newUserId = Bun.randomUUIDv7();
 
   try {
     await db

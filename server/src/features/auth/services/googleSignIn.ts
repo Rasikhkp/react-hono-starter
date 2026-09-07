@@ -1,5 +1,4 @@
 import { OAuth2Client } from "google-auth-library";
-import { v7 } from "uuid";
 import { db } from "@/db/database";
 import { env } from "@/config/env";
 import { AppError, ERROR_TYPES } from "@/lib/error";
@@ -133,7 +132,7 @@ export const signInWithGoogle = async (code: string) => {
     return createAuthSession(byEmail.id);
   }
 
-  const userId = v7();
+  const userId = Bun.randomUUIDv7();
 
   await db
     .insertInto("users")
