@@ -30,6 +30,11 @@ import {
 import { createPortal } from "react-dom";
 import { SharedLayoutBg } from "@/shared/components/motion/shared-layout-bg";
 import {
+  Tooltip,
+  TooltipContent,
+  TooltipTrigger,
+} from "@/shared/components/ui/tooltip";
+import {
   EASE_DRAWER,
   EASE_OUT,
   SPRING_LAYOUT,
@@ -1118,7 +1123,10 @@ export function AnimatedSidebarMenuButton({
     className,
   );
 
-  return href ? (
+  const showTooltip =
+    panel.collapsed && !context.isMobile && Boolean(textLabel);
+
+  const trigger = href ? (
     <motion.a
       href={href}
       target={target}
@@ -1127,7 +1135,6 @@ export function AnimatedSidebarMenuButton({
       aria-expanded={ariaExpanded}
       aria-disabled={disabled || undefined}
       aria-label={panel.collapsed ? textLabel : undefined}
-      title={panel.collapsed ? textLabel : undefined}
       tabIndex={disabled ? -1 : undefined}
       onClick={select}
       onMouseEnter={onMouseEnter}
@@ -1145,7 +1152,6 @@ export function AnimatedSidebarMenuButton({
       aria-current={isActive ? "page" : undefined}
       aria-expanded={ariaExpanded}
       aria-label={panel.collapsed ? textLabel : undefined}
-      title={panel.collapsed ? textLabel : undefined}
       onClick={select}
       onMouseEnter={onMouseEnter}
       onMouseLeave={onMouseLeave}
@@ -1155,5 +1161,19 @@ export function AnimatedSidebarMenuButton({
     >
       {content}
     </motion.button>
+  );
+
+  return (
+    <Tooltip disabled={!showTooltip}>
+      <TooltipTrigger delay={0} render={trigger} />
+      {textLabel ? (
+        <TooltipContent
+          side={panel.side === "right" ? "left" : "right"}
+          sideOffset={8}
+        >
+          {textLabel}
+        </TooltipContent>
+      ) : null}
+    </Tooltip>
   );
 }

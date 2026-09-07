@@ -25,6 +25,7 @@ import { Kbd, KbdGroup } from "./ui/cossui/kbd";
 const items = [
   { value: "/admin", label: "Home" },
   { value: "/admin/users", label: "User" },
+  { value: "/admin/roles", label: "Roles" },
   { value: "/admin/permissions", label: "Permission" },
   { value: "/admin/profile", label: "Profile" },
 ];
