@@ -41,7 +41,7 @@ export function NavBar() {
       className="flex h-16 shrink-0 justify-between border-b px-4"
     >
       <div className="flex items-center gap-4">
-        <AnimatedSidebarTrigger className="-ml-1 size-8 text-muted-foreground hover:bg-muted hover:text-foreground">
+        <AnimatedSidebarTrigger className="-ml-1 size-8 text-muted-foreground hover:bg-muted hover:text-foreground cursor-pointer">
           <PanelLeftIcon className="size-4" />
         </AnimatedSidebarTrigger>
         <Breadcrumb className="hidden sm:block">

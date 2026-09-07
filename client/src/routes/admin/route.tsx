@@ -1,6 +1,8 @@
 import { createFileRoute, Outlet, redirect } from "@tanstack/react-router";
+import { useAtom } from "jotai";
 import type { User } from "@/features/user/types";
 import { authAtom } from "@/shared/atoms/authAtom";
+import { sidebarOpenAtom } from "@/shared/atoms/sidebarAtom";
 import { AppSidebar } from "@/shared/components/AppSidebar";
 import {
   AnimatedSidebarInset,
@@ -38,8 +40,10 @@ export const Route = createFileRoute("/admin")({
 });
 
 function RouteComponent() {
+  const [open, setOpen] = useAtom(sidebarOpenAtom);
+
   return (
-    <AnimatedSidebarProvider>
+    <AnimatedSidebarProvider open={open} onOpenChange={setOpen}>
       <AppSidebar />
       <AnimatedSidebarInset>
         <NavBar />
