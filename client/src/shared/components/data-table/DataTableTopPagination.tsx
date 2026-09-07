@@ -1,4 +1,4 @@
-import type { Table } from "@tanstack/react-table";
+import type { RowData } from "@tanstack/react-table";
 import { Button } from "@/shared/components/ui/button";
 import {
   Pagination,
@@ -7,13 +7,16 @@ import {
   PaginationNext,
   PaginationPrevious,
 } from "@/shared/components/ui/pagination";
+import type { Table } from "@/shared/types/dataTable";
 
-type Props<TData> = {
+type Props<TData extends RowData> = {
   table: Table<TData>;
 };
 
-export function DataTableTopPagination<TData>({ table }: Props<TData>) {
-  const { pageIndex } = table.getState().pagination;
+export function DataTableTopPagination<TData extends RowData>({
+  table,
+}: Props<TData>) {
+  const { pageIndex } = table.state.pagination;
   const totalRows = table.getRowCount();
   const pageCount = table.getPageCount();
 

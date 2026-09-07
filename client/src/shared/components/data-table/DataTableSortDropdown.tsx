@@ -1,3 +1,4 @@
+import type { RowData } from "@tanstack/react-table";
 import { ArrowDownUp } from "lucide-react";
 import type { SortableColumn, Table } from "@/shared/types/dataTable";
 import { Button } from "../ui/button";
@@ -9,16 +10,16 @@ import {
   MenuTrigger,
 } from "../ui/menu";
 
-type Props<TData> = {
+type Props<TData extends RowData> = {
   table: Table<TData>;
   sortableColumns: SortableColumn[];
 };
 
-export function DataTableSortDropdown<TData>({
+export function DataTableSortDropdown<TData extends RowData>({
   table,
   sortableColumns,
 }: Props<TData>) {
-  const sorting = table.getState().sorting;
+  const sorting = table.state.sorting;
 
   return (
     <Menu>

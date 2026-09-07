@@ -1,3 +1,4 @@
+import type { RowData } from "@tanstack/react-table";
 import { CardFrame } from "@/shared/components/ui/card";
 import { Table } from "@/shared/components/ui/table";
 import { useDataTable } from "@/shared/hooks/useDataTable";
@@ -8,7 +9,7 @@ import { DataTableHeader } from "./DataTableHeader";
 import { DataTableToolbar } from "./DataTableToolbar";
 import { DataTableTopPagination } from "./DataTableTopPagination";
 
-export function DataTable<TData>({
+export function DataTable<TData extends RowData>({
   data,
   isLoading,
   isError,

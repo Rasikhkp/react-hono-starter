@@ -1,13 +1,20 @@
-import { flexRender, type HeaderGroup } from "@tanstack/react-table";
+import {
+  flexRender,
+  type HeaderGroup,
+  type RowData,
+} from "@tanstack/react-table";
 import { ArrowDown, ArrowUp, ArrowUpDown } from "lucide-react";
 import { TableHead, TableHeader, TableRow } from "@/shared/components/ui/table";
+import type { AppTableFeatures } from "@/shared/lib/tableFeatures";
 import { cn } from "@/shared/lib/utils";
 
-type Props<TData> = {
-  headerGroups: HeaderGroup<TData>[];
+type Props<TData extends RowData> = {
+  headerGroups: HeaderGroup<AppTableFeatures, TData>[];
 };
 
-export function DataTableHeader<TData>({ headerGroups }: Props<TData>) {
+export function DataTableHeader<TData extends RowData>({
+  headerGroups,
+}: Props<TData>) {
   return (
     <TableHeader>
       {headerGroups.map((headerGroup) => (

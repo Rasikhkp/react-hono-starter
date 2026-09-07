@@ -1,9 +1,10 @@
-import { flexRender, type Row } from "@tanstack/react-table";
+import { flexRender, type Row, type RowData } from "@tanstack/react-table";
 import { Skeleton } from "@/shared/components/ui/skeleton";
 import { TableBody, TableCell, TableRow } from "@/shared/components/ui/table";
+import type { AppTableFeatures } from "@/shared/lib/tableFeatures";
 
-type Props<TData> = {
-  rows: Row<TData>[];
+type Props<TData extends RowData> = {
+  rows: Row<AppTableFeatures, TData>[];
   columnCount: number;
   isLoading: boolean;
   isError: boolean;
@@ -16,7 +17,7 @@ function getSkeletonWidth(cellIndex: number): string {
   return widths[cellIndex % widths.length];
 }
 
-export function DataTableBody<TData>({
+export function DataTableBody<TData extends RowData>({
   rows,
   columnCount,
   isError,

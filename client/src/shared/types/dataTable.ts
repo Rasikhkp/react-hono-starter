@@ -1,20 +1,22 @@
 import type {
-  ColumnDef,
   ColumnFiltersState,
   PaginationState,
+  ReactTable,
+  RowData,
   SortingState,
-  Table,
+  ColumnDef as TanstackColumnDef,
 } from "@tanstack/react-table";
+import type { AppTableFeatures } from "../lib/tableFeatures";
 
-export type {
-  ColumnDef,
-  SortingState,
-  ColumnFiltersState,
-  PaginationState,
-  Table,
-};
+export type ColumnDef<TData extends RowData> = TanstackColumnDef<
+  AppTableFeatures,
+  TData
+>;
+export type Table<TData extends RowData> = ReactTable<AppTableFeatures, TData>;
 
-export type DataTableProps<TData> = {
+export type { ColumnFiltersState, PaginationState, SortingState };
+
+export type DataTableProps<TData extends RowData> = {
   data: TData[];
   isLoading: boolean;
   isError: boolean;
@@ -28,7 +30,7 @@ export type DataTableProps<TData> = {
   defaultSort?: SortingState;
 };
 
-export type UseDataTableOptions<TData> = {
+export type UseDataTableOptions<TData extends RowData> = {
   data: TData[];
   isLoading: boolean;
   isError: boolean;
@@ -74,7 +76,6 @@ export type FilterableColumn =
   | CheckboxFilterableColumn
   | RadioFilterableColumn;
 
-// Server-side data table types
 export type PaginatedResponse<T> = {
   data: T[];
   pagination: {
@@ -85,7 +86,7 @@ export type PaginatedResponse<T> = {
   };
 };
 
-export type UseServerTableOptions<TData> = {
+export type UseServerTableOptions<TData extends RowData> = {
   data: TData[];
   columns: ColumnDef<TData>[];
   pageCount: number;
@@ -102,7 +103,7 @@ export type UseServerTableOptions<TData> = {
   onColumnFiltersChange?: (updater: unknown) => void;
 };
 
-export type ServerDataTableProps<TData> = {
+export type ServerDataTableProps<TData extends RowData> = {
   data: TData[];
   isLoading: boolean;
   isError: boolean;

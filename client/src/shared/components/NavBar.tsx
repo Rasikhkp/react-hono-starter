@@ -1,7 +1,9 @@
 import { Link } from "@tanstack/react-router";
 import { useAtomValue } from "jotai";
+import { PanelLeftIcon } from "lucide-react";
 import React, { useEffect, useRef } from "react";
 import { breadcrumbAtom } from "../atoms/breadcrumbAtom";
+import { AnimatedSidebarTrigger } from "./motion/animated-sidebar";
 import { SearchCommand } from "./SearchCommand";
 import { UserMenu } from "./UserMenu";
 import {
@@ -11,7 +13,6 @@ import {
   BreadcrumbPage,
   BreadcrumbSeparator,
 } from "./ui/breadcrumb";
-import { SidebarTrigger } from "./ui/sidebar";
 import { ThemeToggle } from "./ui/theme-toggle";
 
 export function NavBar() {
@@ -40,7 +41,9 @@ export function NavBar() {
       className="flex h-16 shrink-0 justify-between border-b px-4"
     >
       <div className="flex items-center gap-4">
-        <SidebarTrigger className="-ml-1" />
+        <AnimatedSidebarTrigger className="-ml-1 size-8 text-muted-foreground hover:bg-muted hover:text-foreground">
+          <PanelLeftIcon className="size-4" />
+        </AnimatedSidebarTrigger>
         <Breadcrumb className="hidden sm:block">
           <BreadcrumbList>
             {hasSingleBreadcrumb ? (

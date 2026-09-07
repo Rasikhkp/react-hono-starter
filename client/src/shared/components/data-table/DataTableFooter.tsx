@@ -1,4 +1,4 @@
-import type { Table } from "@tanstack/react-table";
+import type { RowData } from "@tanstack/react-table";
 import { Button } from "@/shared/components/ui/button";
 import { CardFrameFooter } from "@/shared/components/ui/card";
 import {
@@ -15,15 +15,18 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/shared/components/ui/select";
+import type { Table } from "@/shared/types/dataTable";
 
 const PAGE_SIZE_OPTIONS = [5, 10, 20, 50] as const;
 
-type Props<TData> = {
+type Props<TData extends RowData> = {
   table: Table<TData>;
 };
 
-export function DataTableFooter<TData>({ table }: Props<TData>) {
-  const { pageIndex, pageSize } = table.getState().pagination;
+export function DataTableFooter<TData extends RowData>({
+  table,
+}: Props<TData>) {
+  const { pageIndex, pageSize } = table.state.pagination;
   const totalRows = table.getRowCount();
   const rangeStart = totalRows === 0 ? 0 : pageIndex * pageSize + 1;
   const rangeEnd = Math.min((pageIndex + 1) * pageSize, totalRows);

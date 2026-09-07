@@ -1,7 +1,5 @@
-import type { RankingInfo } from "@tanstack/match-sorter-utils";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { createRouter, RouterProvider } from "@tanstack/react-router";
-import type { FilterFn } from "@tanstack/react-table";
 import ReactDOM from "react-dom/client";
 import { routeTree } from "./routeTree.gen";
 import {
@@ -19,16 +17,6 @@ const router = createRouter({
 declare module "@tanstack/react-router" {
   interface Register {
     router: typeof router;
-  }
-}
-
-declare module "@tanstack/react-table" {
-  //add fuzzy filter to the filterFns
-  interface FilterFns {
-    fuzzy: FilterFn<unknown>;
-  }
-  interface FilterMeta {
-    itemRank: RankingInfo;
   }
 }
 

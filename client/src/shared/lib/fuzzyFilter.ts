@@ -1,7 +1,7 @@
 import { rankItem } from "@tanstack/match-sorter-utils";
-import type { FilterFn } from "@tanstack/react-table";
+import type { FilterFn, RowData, TableFeatures } from "@tanstack/react-table";
 
-export const fuzzyFilter: FilterFn<unknown> = (
+export const fuzzyFilter: FilterFn<TableFeatures, RowData> = (
   row,
   columnId,
   value,
@@ -9,7 +9,7 @@ export const fuzzyFilter: FilterFn<unknown> = (
 ) => {
   const itemRank = rankItem(row.getValue(columnId), value);
 
-  addMeta({ itemRank });
+  addMeta?.({ itemRank });
 
   return itemRank.passed;
 };

@@ -32,7 +32,7 @@ export const ImageUploadField = ({
   }, [imageFile]);
 
   const handleFileChange = (file: File | undefined) => {
-    if (!file || !file.type.startsWith("image/")) return;
+    if (!file?.type.startsWith("image/")) return;
     field.handleChange(file);
   };
 

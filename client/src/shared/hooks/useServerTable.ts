@@ -1,9 +1,9 @@
-import { getCoreRowModel, useReactTable } from "@tanstack/react-table";
+import { type RowData, useTable } from "@tanstack/react-table";
 import { useState } from "react";
-import { fuzzyFilter } from "../lib/fuzzyFilter";
+import { tableFeatureSet } from "../lib/tableFeatures";
 import type { UseServerTableOptions } from "../types/dataTable";
 
-export function useServerTable<TData>({
+export function useServerTable<TData extends RowData>({
   data,
   columns,
   pageCount,
@@ -16,7 +16,8 @@ export function useServerTable<TData>({
 }: UseServerTableOptions<TData>) {
   const [rowSelection, setRowSelection] = useState({});
 
-  const table = useReactTable<TData>({
+  return useTable({
+    features: tableFeatureSet,
     data,
     columns,
     pageCount,
@@ -27,10 +28,6 @@ export function useServerTable<TData>({
     manualPagination: true,
     manualSorting: true,
     manualFiltering: true,
-    getCoreRowModel: getCoreRowModel(),
-    filterFns: {
-      fuzzy: fuzzyFilter,
-    },
     onPaginationChange: (updater) => {
       onPaginationChange(updater);
     },
@@ -53,6 +50,4 @@ export function useServerTable<TData>({
       rowSelection,
     },
   });
-
-  return table;
 }

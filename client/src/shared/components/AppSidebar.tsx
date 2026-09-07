@@ -1,56 +1,84 @@
-import { Link, useLocation } from "@tanstack/react-router";
-import {
-  ArrowLeft,
-  GalleryVerticalEnd,
-  Home,
-  Key,
-  Shield,
-  User,
-} from "lucide-react";
+import { useLocation, useNavigate } from "@tanstack/react-router";
+import { ArrowLeft, GalleryVerticalEnd, X } from "lucide-react";
+import { useRef } from "react";
+import { HomeIcon, type HomeIconHandle } from "@/shared/components/ui/home";
 import { usePermission } from "@/shared/hooks/usePermission";
 import {
-  Sidebar,
-  SidebarContent,
-  SidebarGroup,
-  SidebarGroupLabel,
-  SidebarHeader,
-  SidebarMenu,
-  SidebarMenuButton,
-  SidebarMenuItem,
-  SidebarRail,
-  useSidebar,
-} from "./ui/sidebar";
+  AnimatedSidebar,
+  AnimatedSidebarClose,
+  AnimatedSidebarContent,
+  AnimatedSidebarGroup,
+  AnimatedSidebarGroupContent,
+  AnimatedSidebarGroupLabel,
+  AnimatedSidebarHeader,
+  AnimatedSidebarMenu,
+  AnimatedSidebarMenuButton,
+  AnimatedSidebarMenuItem,
+  AnimatedSidebarRail,
+  useAnimatedSidebar,
+} from "./motion/animated-sidebar";
+import { KeyCircleIcon } from "./ui/key-circle";
+import { UserIcon } from "./ui/user";
+import { UsersRoundIcon } from "./ui/users-round";
 
 const allMenuItems = [
   {
     name: "Home",
     url: "/admin",
-    icon: Home,
+    icon: HomeIcon,
     permission: null,
   },
   {
     name: "User",
     url: "/admin/users",
-    icon: User,
+    icon: UserIcon,
     permission: "users:read",
   },
   {
     name: "Roles",
     url: "/admin/roles",
-    icon: Shield,
+    icon: UsersRoundIcon,
     permission: "roles:read",
   },
   {
     name: "Permissions",
     url: "/admin/permissions",
-    icon: Key,
+    icon: KeyCircleIcon,
     permission: "permissions:read",
   },
-];
+] as const;
+
+function SidebarNavButton({
+  name,
+  url,
+  icon: Icon,
+}: {
+  name: string;
+  url: (typeof allMenuItems)[number]["url"];
+  icon: (typeof allMenuItems)[number]["icon"];
+}) {
+  const iconRef = useRef<HomeIconHandle>(null);
+  const location = useLocation();
+  const navigate = useNavigate();
+
+  return (
+    <AnimatedSidebarMenuButton
+      className="cursor-pointer"
+      icon={<Icon ref={iconRef} size={16} />}
+      isActive={location.pathname === url}
+      onSelect={() => navigate({ to: url })}
+      onMouseEnter={() => iconRef.current?.startAnimation()}
+      onMouseLeave={() => iconRef.current?.stopAnimation()}
+    >
+      {name}
+    </AnimatedSidebarMenuButton>
+  );
+}
 
 export function AppSidebar() {
-  const { state } = useSidebar();
   const location = useLocation();
+  const navigate = useNavigate();
+  const { isMobile, setOpenMobile } = useAnimatedSidebar();
   const isProfilePage = location.pathname.startsWith("/admin/profile");
   const { hasPermission } = usePermission();
 
@@ -60,55 +88,56 @@ export function AppSidebar() {
   });
 
   return (
-    <Sidebar collapsible="icon">
-      <SidebarHeader>
-        <SidebarMenu>
-          <SidebarMenuItem>
-            <Link to="/admin">
-              <SidebarMenuButton size="lg">
-                <div className="flex items-center gap-2 self-center font-medium">
-                  <div className="flex size-8 items-center justify-center rounded-md bg-primary text-primary-foreground">
-                    <GalleryVerticalEnd className="size-4" />
-                  </div>
-                  {state === "expanded" ? "Acme Inc." : ""}
-                </div>
-              </SidebarMenuButton>
-            </Link>
-          </SidebarMenuItem>
-        </SidebarMenu>
-      </SidebarHeader>
-      <SidebarContent>
-        <SidebarGroup>
-          <SidebarGroupLabel>Menu</SidebarGroupLabel>
-          <SidebarMenu className="gap-1">
-            {isProfilePage ? (
-              <SidebarMenuItem>
-                <Link to="/admin">
-                  <SidebarMenuButton tooltip="Back to admin" isActive={false}>
-                    <ArrowLeft />
+    <AnimatedSidebar ariaLabel="Admin sidebar" collapsible="icon">
+      <AnimatedSidebarHeader className="p-3 pb-2">
+        <div className="flex min-h-11 items-center gap-3 overflow-hidden px-2">
+          <button
+            type="button"
+            onClick={() => {
+              navigate({ to: "/admin" });
+              if (isMobile) setOpenMobile(false);
+            }}
+            className="flex min-w-0 flex-1 items-center gap-2 rounded-lg text-left outline-none focus-visible:ring-2 focus-visible:ring-ring"
+          >
+            <div className="flex size-8 shrink-0 items-center justify-center rounded-md bg-primary text-primary-foreground">
+              <GalleryVerticalEnd className="size-4" />
+            </div>
+            <span className="truncate font-medium text-sm group-data-[state=collapsed]/sidebar:hidden">
+              Acme Inc.
+            </span>
+          </button>
+          <AnimatedSidebarClose className="ml-auto text-muted-foreground hover:bg-muted md:hidden">
+            <X aria-hidden="true" className="size-4" />
+          </AnimatedSidebarClose>
+        </div>
+      </AnimatedSidebarHeader>
+      <AnimatedSidebarContent>
+        <AnimatedSidebarGroup>
+          <AnimatedSidebarGroupLabel>Menu</AnimatedSidebarGroupLabel>
+          <AnimatedSidebarGroupContent>
+            <AnimatedSidebarMenu>
+              {isProfilePage ? (
+                <AnimatedSidebarMenuItem>
+                  <AnimatedSidebarMenuButton
+                    className="cursor-pointer"
+                    icon={<ArrowLeft className="size-4" />}
+                    onSelect={() => navigate({ to: "/admin" })}
+                  >
                     Back to admin
-                  </SidebarMenuButton>
-                </Link>
-              </SidebarMenuItem>
-            ) : (
-              menuItems.map((d) => (
-                <SidebarMenuItem key={d.name}>
-                  <Link to={d.url}>
-                    <SidebarMenuButton
-                      tooltip={d.name}
-                      isActive={location.pathname === d.url}
-                    >
-                      <d.icon />
-                      {d.name}
-                    </SidebarMenuButton>
-                  </Link>
-                </SidebarMenuItem>
-              ))
-            )}
-          </SidebarMenu>
-        </SidebarGroup>
-      </SidebarContent>
-      <SidebarRail />
-    </Sidebar>
+                  </AnimatedSidebarMenuButton>
+                </AnimatedSidebarMenuItem>
+              ) : (
+                menuItems.map((d) => (
+                  <AnimatedSidebarMenuItem key={d.name}>
+                    <SidebarNavButton name={d.name} url={d.url} icon={d.icon} />
+                  </AnimatedSidebarMenuItem>
+                ))
+              )}
+            </AnimatedSidebarMenu>
+          </AnimatedSidebarGroupContent>
+        </AnimatedSidebarGroup>
+      </AnimatedSidebarContent>
+      <AnimatedSidebarRail />
+    </AnimatedSidebar>
   );
 }

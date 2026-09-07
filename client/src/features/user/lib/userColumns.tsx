@@ -1,7 +1,5 @@
-import type { ColumnDef } from "@tanstack/react-table";
 import { formatDistanceToNow } from "date-fns";
 import { CheckCircle2, Clock3, Mail, ShieldCheck, XCircle } from "lucide-react";
-
 import {
   Avatar,
   AvatarFallback,
@@ -10,6 +8,7 @@ import {
 import { Badge } from "@/shared/components/ui/badge";
 import { Checkbox } from "@/shared/components/ui/checkbox";
 import { cn } from "@/shared/lib/utils";
+import type { ColumnDef } from "@/shared/types/dataTable";
 
 import { UserActions } from "../components/UserActions";
 import type { User } from "../types";

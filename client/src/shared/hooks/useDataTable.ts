@@ -1,18 +1,15 @@
 import {
   type ColumnFiltersState,
-  getCoreRowModel,
-  getFilteredRowModel,
-  getPaginationRowModel,
-  getSortedRowModel,
   type PaginationState,
+  type RowData,
   type SortingState,
-  useReactTable,
+  useTable,
 } from "@tanstack/react-table";
 import { useState } from "react";
-import { fuzzyFilter } from "../lib/fuzzyFilter";
+import { tableFeatureSet } from "../lib/tableFeatures";
 import type { UseDataTableOptions } from "../types/dataTable";
 
-export function useDataTable<TData>({
+export function useDataTable<TData extends RowData>({
   data,
   columns,
   defaultPageSize = 10,
@@ -27,23 +24,17 @@ export function useDataTable<TData>({
   const [globalFilter, setGlobalFilter] = useState("");
   const [rowSelection, setRowSelection] = useState({});
 
-  const table = useReactTable<TData>({
+  return useTable({
+    features: tableFeatureSet,
     data,
     columns,
     enableRowSelection: true,
     onRowSelectionChange: setRowSelection,
     enableSortingRemoval: false,
-    getCoreRowModel: getCoreRowModel(),
-    getFilteredRowModel: getFilteredRowModel(), // needed for filtering
-    getPaginationRowModel: getPaginationRowModel(),
-    getSortedRowModel: getSortedRowModel(),
     onColumnFiltersChange: setColumnFilters,
     onPaginationChange: setPagination,
     onSortingChange: setSorting,
     onGlobalFilterChange: setGlobalFilter,
-    filterFns: {
-      fuzzy: fuzzyFilter,
-    },
     state: {
       columnFilters,
       globalFilter,
@@ -52,6 +43,4 @@ export function useDataTable<TData>({
       rowSelection,
     },
   });
-
-  return table;
 }

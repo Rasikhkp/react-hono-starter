@@ -2,8 +2,11 @@ import { createFileRoute, Outlet, redirect } from "@tanstack/react-router";
 import type { User } from "@/features/user/types";
 import { authAtom } from "@/shared/atoms/authAtom";
 import { AppSidebar } from "@/shared/components/AppSidebar";
+import {
+  AnimatedSidebarInset,
+  AnimatedSidebarProvider,
+} from "@/shared/components/motion/animated-sidebar";
 import { NavBar } from "@/shared/components/NavBar";
-import { SidebarInset, SidebarProvider } from "@/shared/components/ui/sidebar";
 import { api } from "@/shared/lib/api";
 import { safeFetch } from "@/shared/lib/safeFetch";
 import { store } from "@/shared/lib/store";
@@ -36,9 +39,9 @@ export const Route = createFileRoute("/admin")({
 
 function RouteComponent() {
   return (
-    <SidebarProvider>
+    <AnimatedSidebarProvider>
       <AppSidebar />
-      <SidebarInset>
+      <AnimatedSidebarInset>
         <NavBar />
         <div className="px-4 pt-4 pb-10 min-h-[calc(100vh-var(--navbar-height))] relative isolate">
           {/* Grid background */}
@@ -64,7 +67,7 @@ function RouteComponent() {
             © 2026 Bintan Resorts. All rights reserved.
           </div>
         </div>
-      </SidebarInset>
-    </SidebarProvider>
+      </AnimatedSidebarInset>
+    </AnimatedSidebarProvider>
   );
 }

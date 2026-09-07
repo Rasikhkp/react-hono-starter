@@ -1,17 +1,18 @@
-import type { Table } from "@tanstack/react-table";
-import { DownloadIcon, SearchIcon, Trash } from "lucide-react";
+import type { RowData } from "@tanstack/react-table";
+import { DownloadIcon, SearchIcon, Trash2 } from "lucide-react";
 import { useCallback } from "react";
 import { Button } from "@/shared/components/ui/button";
 import type {
   FilterableColumn,
   SortableColumn,
+  Table,
 } from "@/shared/types/dataTable";
 import { DebounceInput } from "../ui/debounce-input";
 import { InputGroup, InputGroupAddon } from "../ui/input-group";
 import { DataTableFilterDialog } from "./DataTableFilterDialog";
 import { DataTableSortDropdown } from "./DataTableSortDropdown";
 
-type Props<TData> = {
+type Props<TData extends RowData> = {
   table: Table<TData>;
   searchPlaceholder?: string;
   filterableColumns?: FilterableColumn[];
@@ -20,7 +21,7 @@ type Props<TData> = {
   onDeleteMany?: (data: unknown[]) => void;
 };
 
-export function DataTableToolbar<TData>({
+export function DataTableToolbar<TData extends RowData>({
   table,
   searchPlaceholder = "Search...",
   filterableColumns,
@@ -72,7 +73,7 @@ export function DataTableToolbar<TData>({
             <div className="absolute -top-1.5 -right-1.5 flex size-4 items-center justify-center rounded-full bg-primary text-[10px] font-medium text-primary-foreground">
               {table.getSelectedRowModel().rows.length}
             </div>
-            <Trash />
+            <Trash2 />
           </Button>
         )}
 

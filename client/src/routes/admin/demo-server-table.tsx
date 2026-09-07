@@ -1,8 +1,9 @@
 import { useQuery } from "@tanstack/react-query";
 import { createFileRoute } from "@tanstack/react-router";
-import type { ColumnDef, ColumnFiltersState } from "@tanstack/react-table";
 import { ServerDataTable } from "@/shared/components/data-table/ServerDataTable";
 import type {
+  ColumnDef,
+  ColumnFiltersState,
   FilterableColumn,
   PaginatedResponse,
   SortableColumn,

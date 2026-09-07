@@ -1,7 +1,6 @@
-import type { Table } from "@tanstack/react-table";
+import type { RowData } from "@tanstack/react-table";
 import { SlidersHorizontalIcon } from "lucide-react";
 import { useEffect, useState } from "react";
-
 import { Button } from "@/shared/components/ui/button";
 import {
   Dialog,
@@ -14,20 +13,19 @@ import {
   DialogTrigger,
 } from "@/shared/components/ui/dialog";
 import { Label } from "@/shared/components/ui/label";
-
-import type { FilterableColumn } from "@/shared/types/dataTable";
+import type { FilterableColumn, Table } from "@/shared/types/dataTable";
 import { FilterField } from "./FilterField";
 
-type Props<TData> = {
+type Props<TData extends RowData> = {
   table: Table<TData>;
   filterableColumns: FilterableColumn[];
 };
 
 type DraftFilters = Record<string, (string | number) | (string | number)[]>;
 
-function getInitialDraft(
+function getInitialDraft<TData extends RowData>(
   columns: FilterableColumn[],
-  table: Table<unknown>,
+  table: Table<TData>,
 ): DraftFilters {
   return Object.fromEntries(
     columns.map((col) => {
@@ -41,7 +39,7 @@ function getInitialDraft(
   ) as DraftFilters;
 }
 
-export function DataTableFilterDialog<TData>({
+export function DataTableFilterDialog<TData extends RowData>({
   table,
   filterableColumns,
 }: Props<TData>) {
@@ -51,7 +49,7 @@ export function DataTableFilterDialog<TData>({
   useEffect(() => {
     if (!open) return;
 
-    setDraft(getInitialDraft(filterableColumns, table as Table<unknown>));
+    setDraft(getInitialDraft(filterableColumns, table));
   }, [open, filterableColumns, table]);
 
   const activeFilterCount = filterableColumns.filter((col) => {
